@@ -1,0 +1,25 @@
+{
+  "name": "source-to-settle-ai-demo",
+  "version": "1.0.0",
+  "description": "AI-powered Source-to-Settle procurement automation with multi-agent workflow",
+  "type": "module",
+  "scripts": {
+    "lint": "npx -y oxlint --fix",
+    "format": "npx -y dprint fmt -c https://raw.githubusercontent.com/sanand0/scripts/refs/heads/main/dprint.jsonc",
+    "serve": "npx -y http-server -p 8000 -c-1",
+    "dev": "npx -y http-server -p 8000 -c-1 -o"
+  },
+  "keywords": [
+    "ai",
+    "procurement",
+    "source-to-settle",
+    "multi-agent",
+    "llm",
+    "automation",
+    "invoice-processing",
+    "vendor-management"
+  ],
+  "author": "",
+  "license": "MIT",
+  "devDependencies": {}
+}

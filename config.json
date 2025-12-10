@@ -1,0 +1,103 @@
+{
+  "defaults": {
+    "model": "gpt-5-mini",
+    "temperature": 1
+  },
+  "agents": [
+    {
+      "name": "VendorIntakeAgent",
+      "stage": "Stage 1",
+      "icon": "bi bi-building",
+      "description": "Vendor onboarding and registration",
+      "role": "Process new vendor applications, extract company information, validate registration details, and create vendor profiles in the system.",
+      "task": "Extract vendor details including company name, registration numbers (PAN, GST, Tax ID), contact information, banking details, and business classifications. Validate format and completeness of submitted documents."
+    },
+    {
+      "name": "RiskGuardAgent",
+      "stage": "Stage 2",
+      "icon": "bi bi-shield-check",
+      "description": "Risk assessment and compliance validation",
+      "role": "Evaluate vendor risk profiles based on financial stability, compliance history, industry risks, and geographic factors. Assign risk bands (LOW/MEDIUM/HIGH) and recommend risk mitigation strategies.",
+      "task": "Analyze vendor data to assess financial risk, compliance risk, operational risk, and reputational risk. Calculate risk scores for quality, delivery, and compliance. Provide risk band classification and monitoring recommendations."
+    },
+    {
+      "name": "ContractCraftAgent",
+      "stage": "Stage 3",
+      "icon": "bi bi-file-text",
+      "description": "Contract generation and negotiation",
+      "role": "Generate Master Service Agreements (MSAs) tailored to vendor risk profiles, industry standards, and company policies. Flag risky clauses and suggest negotiation points.",
+      "task": "Create contract templates with appropriate terms, payment conditions, delivery schedules, and compliance requirements. Identify and highlight any risky or non-standard clauses in vendor-submitted contracts."
+    },
+    {
+      "name": "InvoiceIQAgent",
+      "stage": "Stage 4",
+      "icon": "bi bi-receipt",
+      "description": "Invoice processing and validation",
+      "role": "Extract invoice data from digital and scanned documents, validate against purchase orders and goods receipts, verify tax calculations (CGST/SGST), and flag discrepancies.",
+      "task": "Process invoice documents to extract invoice number, date, vendor details, line items, amounts, and tax breakdowns. Match with PO/GR data, validate calculations, and categorize invoice status (APPROVED/PENDING/REJECTED)."
+    },
+    {
+      "name": "PayFlowAgent",
+      "stage": "Stage 5",
+      "icon": "bi bi-cash-coin",
+      "description": "Payment execution and reconciliation",
+      "role": "Schedule payments based on approved invoices, payment terms, and cash flow optimization. Generate payment instructions and track payment status.",
+      "task": "Process approved invoices for payment execution. Calculate payment dates based on terms (Net 30/45/60), prepare payment batches, and generate payment receipts. Track payment status and reconcile with bank statements."
+    },
+    {
+      "name": "Supplier360Agent",
+      "stage": "Stage 6",
+      "icon": "bi bi-graph-up-arrow",
+      "description": "Supplier performance analytics",
+      "role": "Analyze supplier performance metrics including on-time payment rates, dispute rates, cycle times, quality scores, and delivery performance. Generate actionable insights and renewal recommendations.",
+      "task": "Aggregate data across all stages to calculate supplier KPIs: total invoices processed, amounts paid, payment performance, dispute rates, average cycle times, and quality/delivery/compliance scores. Provide trend analysis (IMPROVING/STABLE/DECLINING) and recommendations (RENEW/MONITOR/RETENDER)."
+    }
+  ],
+  "demos": [
+    {
+      "title": "New Vendor Onboarding",
+      "icon": "bi bi-person-plus",
+      "description": "Process a new vendor application with KYC documents",
+      "files": [
+        "data/kyc_samples/VENDOR-0002_KYC.pdf",
+        "data/kyc_samples/VENDOR-0002_company_profile.docx"
+      ],
+      "expectedAgents": ["VendorIntakeAgent", "RiskGuardAgent", "ContractCraftAgent"]
+    },
+    {
+      "title": "Invoice Processing",
+      "icon": "bi bi-receipt-cutoff",
+      "description": "Process multiple invoices and validate against POs",
+      "files": [
+        "data/invoices_pdf/INV-0001_digital.pdf",
+        "data/invoices_pdf/INV-0002_digital.pdf",
+        "data/po_gr.csv"
+      ],
+      "expectedAgents": ["InvoiceIQAgent", "PayFlowAgent"]
+    },
+    {
+      "title": "Supplier Performance Review",
+      "icon": "bi bi-clipboard-data",
+      "description": "Analyze supplier performance and generate insights",
+      "files": [
+        "data/supplier_history.csv",
+        "data/invoices.csv",
+        "data/supplier_performance/VENDOR-0002_scorecard.xlsx"
+      ],
+      "expectedAgents": ["Supplier360Agent"]
+    },
+    {
+      "title": "End-to-End Workflow",
+      "icon": "bi bi-arrow-repeat",
+      "description": "Complete procurement cycle from vendor onboarding to analytics",
+      "files": [
+        "data/vendors.csv",
+        "data/kyc_samples/VENDOR-0003_KYC.pdf",
+        "data/contracts/VENDOR-0003_contract_final_signed.pdf",
+        "data/invoices_pdf/INV-0005_digital.pdf",
+        "data/po_gr.csv"
+      ],
+      "expectedAgents": ["VendorIntakeAgent", "RiskGuardAgent", "ContractCraftAgent", "InvoiceIQAgent", "PayFlowAgent", "Supplier360Agent"]
+    }
+  ]
+}

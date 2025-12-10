@@ -1,0 +1,318 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Source-to-Settle Demo Dataset</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 40px 0;
+        }
+        .container {
+            background: white;
+            border-radius: 15px;
+            padding: 40px;
+            box-shadow: 0 10px 40px rgba(0,0,0,0.2);
+        }
+        .header {
+            text-align: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 3px solid #667eea;
+        }
+        .stat-card {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 25px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            transition: transform 0.3s;
+        }
+        .stat-card:hover {
+            transform: translateY(-5px);
+        }
+        .stat-number {
+            font-size: 2.5rem;
+            font-weight: bold;
+        }
+        .stat-label {
+            font-size: 1rem;
+            opacity: 0.9;
+        }
+        .file-section {
+            margin-top: 40px;
+        }
+        .file-list {
+            background: #f8f9fa;
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 15px;
+        }
+        .file-item {
+            padding: 10px;
+            border-bottom: 1px solid #dee2e6;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        .file-item:last-child {
+            border-bottom: none;
+        }
+        .file-icon {
+            width: 40px;
+            text-align: center;
+            margin-right: 15px;
+        }
+        .badge-custom {
+            padding: 5px 15px;
+            border-radius: 20px;
+        }
+        .agent-card {
+            border-left: 4px solid #667eea;
+            padding: 15px;
+            margin-bottom: 15px;
+            background: #f8f9fa;
+            border-radius: 5px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1><i class="fas fa-robot"></i> Source-to-Settle AI Demo</h1>
+            <h3>Synthetic Dataset Index</h3>
+            <p class="text-muted">Generated on December 09, 2025 at 12:07:31</p>
+        </div>
+
+        <!-- Statistics Dashboard -->
+        <div class="row">
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">20</div>
+                    <div class="stat-label"><i class="fas fa-building"></i> Vendors</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">80</div>
+                    <div class="stat-label"><i class="fas fa-file-invoice"></i> Invoices</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">50</div>
+                    <div class="stat-label"><i class="fas fa-shopping-cart"></i> Purchase Orders</div>
+                </div>
+            </div>
+            <div class="col-md-3">
+                <div class="stat-card">
+                    <div class="stat-number">100</div>
+                    <div class="stat-label"><i class="fas fa-clock"></i> Events</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Stats -->
+        <div class="row mt-4">
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5>Total Invoice Value</h5>
+                        <h3 class="text-success">₹157,699,161</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5>Approved Vendors</h5>
+                        <h3 class="text-primary">15</h3>
+                    </div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="card">
+                    <div class="card-body text-center">
+                        <h5>Matched Invoices</h5>
+                        <h3 class="text-info">50</h3>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- AI Agents Section -->
+        <div class="file-section">
+            <h2><i class="fas fa-brain"></i> AI Agents</h2>
+            <div class="row mt-3">
+                <div class="col-md-6">
+                    <div class="agent-card">
+                        <h5><i class="fas fa-user-plus"></i> VendorIntakeAgent</h5>
+                        <p class="mb-0">Auto-create & validate vendor profiles</p>
+                    </div>
+                    <div class="agent-card">
+                        <h5><i class="fas fa-shield-alt"></i> RiskGuardAgent</h5>
+                        <p class="mb-0">KYC/AML scoring & risk assessment</p>
+                    </div>
+                    <div class="agent-card">
+                        <h5><i class="fas fa-file-contract"></i> ContractCraftAgent</h5>
+                        <p class="mb-0">Auto-generate contract drafts</p>
+                    </div>
+                </div>
+                <div class="col-md-6">
+                    <div class="agent-card">
+                        <h5><i class="fas fa-receipt"></i> InvoiceIQAgent</h5>
+                        <p class="mb-0">OCR, matching, duplicate detection</p>
+                    </div>
+                    <div class="agent-card">
+                        <h5><i class="fas fa-money-check-alt"></i> PayFlowAgent</h5>
+                        <p class="mb-0">Payment readiness & settlement</p>
+                    </div>
+                    <div class="agent-card">
+                        <h5><i class="fas fa-chart-line"></i> Supplier360Agent</h5>
+                        <p class="mb-0">Performance analytics & recommendations</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- File Index -->
+        <div class="file-section">
+            <h2><i class="fas fa-folder-open"></i> Dataset Files</h2>
+
+            <h4 class="mt-4">Master Data Files</h4>
+            <div class="file-list">
+                <div class="file-item">
+                    <div class="d-flex align-items-center">
+                        <div class="file-icon"><i class="fas fa-file-csv fa-2x text-success"></i></div>
+                        <div>
+                            <strong>vendors.csv</strong>
+                            <div class="text-muted">Master vendor table - 20 records</div>
+                        </div>
+                    </div>
+                    <span class="badge badge-custom bg-success">20 rows</span>
+                </div>
+                <div class="file-item">
+                    <div class="d-flex align-items-center">
+                        <div class="file-icon"><i class="fas fa-file-excel fa-2x text-success"></i></div>
+                        <div>
+                            <strong>vendors_master_database.xlsx</strong>
+                            <div class="text-muted">Enhanced vendor database with analytics</div>
+                        </div>
+                    </div>
+                    <span class="badge badge-custom bg-info">Excel</span>
+                </div>
+                <div class="file-item">
+                    <div class="d-flex align-items-center">
+                        <div class="file-icon"><i class="fas fa-file-csv fa-2x text-primary"></i></div>
+                        <div>
+                            <strong>invoices.csv</strong>
+                            <div class="text-muted">Invoice records - 80 invoices</div>
+                        </div>
+                    </div>
+                    <span class="badge badge-custom bg-primary">80 rows</span>
+                </div>
+                <div class="file-item">
+                    <div class="d-flex align-items-center">
+                        <div class="file-icon"><i class="fas fa-file-excel fa-2x text-primary"></i></div>
+                        <div>
+                            <strong>invoices_register.xlsx</strong>
+                            <div class="text-muted">Comprehensive invoice tracking register</div>
+                        </div>
+                    </div>
+                    <span class="badge badge-custom bg-info">Excel</span>
+                </div>
+                <div class="file-item">
+                    <div class="d-flex align-items-center">
+                        <div class="file-icon"><i class="fas fa-file-csv fa-2x text-warning"></i></div>
+                        <div>
+                            <strong>po_gr.csv</strong>
+                            <div class="text-muted">Purchase Orders & Goods Receipts - 50 records</div>
+                        </div>
+                    </div>
+                    <span class="badge badge-custom bg-warning">50 rows</span>
+                </div>
+                <div class="file-item">
+                    <div class="d-flex align-items-center">
+                        <div class="file-icon"><i class="fas fa-file-csv fa-2x text-info"></i></div>
+                        <div>
+                            <strong>supplier_history.csv</strong>
+                            <div class="text-muted">Performance analytics - 13 vendors</div>
+                        </div>
+                    </div>
+                    <span class="badge badge-custom bg-info">13 rows</span>
+                </div>
+                <div class="file-item">
+                    <div class="d-flex align-items-center">
+                        <div class="file-icon"><i class="fas fa-file-csv fa-2x text-secondary"></i></div>
+                        <div>
+                            <strong>events_sample.csv</strong>
+                            <div class="text-muted">Agent activity log - 100 events</div>
+                        </div>
+                    </div>
+                    <span class="badge badge-custom bg-secondary">100 rows</span>
+                </div>
+            </div>
+
+            <h4 class="mt-4">Document Folders</h4>
+            <div class="file-list">
+                <div class="file-item">
+                    <div class="d-flex align-items-center">
+                        <div class="file-icon"><i class="fas fa-folder fa-2x text-primary"></i></div>
+                        <div>
+                            <strong>kyc_samples/</strong>
+                            <div class="text-muted">KYC documents - PDFs and Word docs</div>
+                        </div>
+                    </div>
+                    <span class="badge badge-custom bg-primary">40 files</span>
+                </div>
+                <div class="file-item">
+                    <div class="d-flex align-items-center">
+                        <div class="file-icon"><i class="fas fa-folder fa-2x text-danger"></i></div>
+                        <div>
+                            <strong>invoices_pdf/</strong>
+                            <div class="text-muted">Invoice PDFs - digital and scanned</div>
+                        </div>
+                    </div>
+                    <span class="badge badge-custom bg-danger">80 PDFs</span>
+                </div>
+                <div class="file-item">
+                    <div class="d-flex align-items-center">
+                        <div class="file-icon"><i class="fas fa-folder fa-2x text-success"></i></div>
+                        <div>
+                            <strong>contracts/</strong>
+                            <div class="text-muted">Contract documents - Word and PDF</div>
+                        </div>
+                    </div>
+                    <span class="badge badge-custom bg-success">30 files</span>
+                </div>
+                <div class="file-item">
+                    <div class="d-flex align-items-center">
+                        <div class="file-icon"><i class="fas fa-folder fa-2x text-warning"></i></div>
+                        <div>
+                            <strong>supplier_performance/</strong>
+                            <div class="text-muted">Performance scorecards (Excel)</div>
+                        </div>
+                    </div>
+                    <span class="badge badge-custom bg-warning">13 files</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Footer -->
+        <div class="text-center mt-5 pt-4 border-top">
+            <p class="text-muted">
+                <i class="fas fa-database"></i> Dataset Version 1.0.0 |
+                Generated December 09, 2025 |
+                <i class="fas fa-robot"></i> AI-Powered Source-to-Settle Demo
+            </p>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

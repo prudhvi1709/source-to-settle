@@ -16,8 +16,11 @@ import mammoth from "mammoth";
 const $ = (selector, el = document) => el.querySelector(selector);
 const loading = html`<div class="spinner-border" role="status"><span class="visually-hidden">Loading...</span></div>`;
 
-// Configure PDF.js worker
+// Configure PDF.js worker and standard fonts
 pdfjsLib.GlobalWorkerOptions.workerSrc = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/build/pdf.worker.min.mjs";
+
+// Set standard fonts path to suppress warnings
+const PDFJS_STANDARD_FONT_DATA_URL = "https://cdn.jsdelivr.net/npm/pdfjs-dist@4.10.38/standard_fonts/";
 
 // Set up settings form persistence
 const settingsForm = saveform("#settings-form");
@@ -47,6 +50,12 @@ try {
   console.error("Failed to load config.json:", e);
   config = { agents: [], demos: [] };
 }
+
+// Track agent outputs globally
+let agentOutputs = [];
+
+// Track orchestration plan
+let orchestrationPlan = null;
 
 // Render workflow stages
 renderWorkflowStages();
@@ -109,10 +118,10 @@ function renderFileList() {
               <small class="text-muted ms-2">(${formatFileSize(file.size)})</small>
             </div>
             <div>
-              <button class="btn btn-sm btn-outline-primary me-2" @click=${() => previewFile(file)}>
-                <i class="bi bi-eye"></i>
+              <button class="btn btn-sm btn-outline-primary me-2" @click=${() => previewFile(file)} title="Preview file">
+                <i class="bi bi-eye"></i> Preview
               </button>
-              <button class="btn btn-sm btn-outline-danger" @click=${() => removeFile(index)}>
+              <button class="btn btn-sm btn-outline-danger" @click=${() => removeFile(index)} title="Remove file">
                 <i class="bi bi-trash"></i>
               </button>
             </div>
@@ -180,7 +189,10 @@ async function previewFile(file) {
 
 async function previewPDF(file, preview) {
   const arrayBuffer = await file.arrayBuffer();
-  const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+  const pdf = await pdfjsLib.getDocument({
+    data: arrayBuffer,
+    standardFontDataUrl: PDFJS_STANDARD_FONT_DATA_URL
+  }).promise;
   const page = await pdf.getPage(1);
   const viewport = page.getViewport({ scale: 1.5 });
 
@@ -243,7 +255,10 @@ async function extractText(file) {
 async function extractTextFromPDF(file) {
   try {
     const arrayBuffer = await file.arrayBuffer();
-    const pdf = await pdfjsLib.getDocument({ data: arrayBuffer }).promise;
+    const pdf = await pdfjsLib.getDocument({
+      data: arrayBuffer,
+      standardFontDataUrl: PDFJS_STANDARD_FONT_DATA_URL
+    }).promise;
     let text = "";
 
     for (let i = 1; i <= pdf.numPages; i++) {
@@ -299,27 +314,50 @@ async function extractTextFromWord(file) {
     return result.value || `[No text extracted from ${file.name}]`;
   } catch (error) {
     console.error(`Word extraction error for ${file.name}:`, error);
-    return `[Word document extraction failed for ${file.name}: ${error.message}. This may be an older .doc format (only .docx is supported).]`;
+    // Return a descriptive placeholder instead of failing completely
+    return `[Word Document: ${file.name}]
+
+Note: This document could not be automatically extracted. It may be:
+- An older .doc format (only .docx is supported)
+- A corrupted or invalid file
+- Password protected
+
+The document filename and type will still be considered by the agents for context.`;
   }
 }
 
 // Workflow stages rendering
 function renderWorkflowStages() {
+  const workflowContainer = $("#workflow-stages");
   const stages = config.agents || [];
+
   render(
-    stages.map((agent, index) => html`
-      <div class="col-md-6 col-lg-4 col-xl-2">
-        <div class="card workflow-stage text-center h-100" data-stage="${index}">
-          <div class="card-body">
-            <i class="${agent.icon} stage-icon text-primary"></i>
-            <h6 class="card-title">${agent.name}</h6>
-            <p class="card-text small text-muted">${agent.description}</p>
-            <span class="badge bg-secondary">${agent.stage}</span>
+    html`
+      <div class="col-12 mb-3">
+        <div class="alert alert-info">
+          <div class="d-flex align-items-center">
+            <i class="bi bi-diagram-3 display-6 me-3"></i>
+            <div>
+              <h5 class="mb-1">Dynamic Agent Orchestration</h5>
+              <p class="mb-0 small">Upload documents and the Orchestrator will intelligently route to the right agents in the optimal sequence.</p>
+            </div>
           </div>
         </div>
       </div>
-    `),
-    $("#workflow-stages")
+      ${stages.map((agent, index) => html`
+        <div class="col-md-6 col-lg-4 col-xl-2">
+          <div class="card workflow-stage text-center h-100" data-stage="${index}">
+            <div class="card-body">
+              <i class="${agent.icon} stage-icon text-primary"></i>
+              <h6 class="card-title">${agent.name}</h6>
+              <p class="card-text small text-muted">${agent.description}</p>
+              <span class="badge bg-secondary">${agent.stage}</span>
+            </div>
+          </div>
+        </div>
+      `)}
+    `,
+    workflowContainer
   );
 }
 
@@ -334,12 +372,14 @@ function renderDemoCards() {
   render(
     demos.map((demo, index) => html`
       <div class="col-md-6 col-lg-4">
-        <div class="card h-100 text-center">
-          <div class="card-body d-flex flex-column">
-            <div class="mb-3"><i class="display-3 text-primary ${demo.icon}"></i></div>
-            <h6 class="card-title h5 mb-2">${demo.title}</h6>
-            <p class="card-text">${demo.description}</p>
-            <button class="mt-auto btn btn-primary" data-run-demo=${index}>
+        <div class="card h-100">
+          <div class="card-body d-flex flex-column text-center">
+            <div class="mb-3">
+              <i class="display-3 text-primary ${demo.icon}"></i>
+            </div>
+            <h6 class="card-title mb-2">${demo.title}</h6>
+            <p class="card-text small text-muted">${demo.description}</p>
+            <button class="mt-auto btn btn-primary btn-sm" data-run-demo=${index}>
               <i class="bi bi-play-circle me-2"></i>Run Demo
             </button>
           </div>
@@ -362,10 +402,18 @@ $("#demo-cards").addEventListener("click", async (e) => {
   // Load sample files for demo
   await loadSampleFiles(demo.files || []);
 
-  // Auto-process if files loaded
-  if (uploadedFiles.length > 0) {
-    processDocuments();
+  // Scroll to file upload area to show files and preview
+  const uploadZone = $("#file-upload-zone");
+  if (uploadZone) {
+    uploadZone.scrollIntoView({ behavior: "smooth", block: "center" });
   }
+
+  // Show alert prompting user to preview or process
+  bootstrapAlert({
+    color: "info",
+    title: "Files Loaded",
+    body: `Loaded ${uploadedFiles.length} file(s). Preview them using the eye icon 👁️, then click "Process Documents" when ready.`
+  });
 });
 
 // Load sample data
@@ -452,11 +500,60 @@ async function processDocuments() {
   await processAgentWorkflow(extractedData);
 }
 
-// Track agent outputs globally
-let agentOutputs = [];
+// Run orchestrator to determine agent plan
+async function runOrchestrator(extractedData) {
+  const orchestratorConfig = config.orchestrator;
+  if (!orchestratorConfig) {
+    console.error("No orchestrator configuration found");
+    return null;
+  }
+
+  updateTimeline("Orchestrator", "Analyzing documents and planning agent execution...", 0, false, false, orchestratorConfig.icon);
+
+  // Prepare agent catalog for orchestrator
+  const agentCatalog = config.agents.map(agent => ({
+    name: agent.name,
+    description: agent.description,
+    role: agent.role,
+    capabilities: agent.task
+  }));
+
+  // Build prompt for orchestrator
+  const prompt = `You are ${orchestratorConfig.name}, ${orchestratorConfig.description}.
+
+${orchestratorConfig.role}
+
+**Available Agents:**
+${JSON.stringify(agentCatalog, null, 2)}
+
+**Uploaded Files:**
+${extractedData.map(d => `- ${d.filename} (${d.type || 'unknown type'})`).join('\n')}
+
+**File Content Preview:**
+${extractedData.map(d => `File: ${d.filename}\nPreview: ${d.text.substring(0, 300)}...\n`).join('\n---\n')}
+
+**Task:** ${orchestratorConfig.task}
+
+**IMPORTANT:** Return ONLY valid JSON with this exact structure:
+{
+  "scenario": "brief description of detected scenario",
+  "reasoning": "why you chose this scenario and agent sequence",
+  "agentPlan": ["AgentName1", "AgentName2", ...],
+  "expectedOutcome": "what we expect to achieve"
+}`;
+
+  try {
+    const result = await runAgent(orchestratorConfig, extractedData, [], true);
+    updateTimeline("Orchestrator", `Plan created: ${result.agentPlan?.length || 0} agents selected`, 0, true, false, orchestratorConfig.icon);
+    return result;
+  } catch (e) {
+    console.error("Orchestrator error:", e);
+    updateTimeline("Orchestrator", `Error: ${e.message}`, 0, false, true, orchestratorConfig.icon);
+    throw e;
+  }
+}
 
 async function processAgentWorkflow(extractedData) {
-  const agents = config.agents || [];
   const results = [];
   agentOutputs = []; // Reset outputs
 
@@ -464,46 +561,230 @@ async function processAgentWorkflow(extractedData) {
   const outputDiv = $("#agent-output");
   render(html`<div class="accordion" id="agent-accordion"></div>`, outputDiv);
 
-  for (let i = 0; i < agents.length; i++) {
-    const agent = agents[i];
+  try {
+    // Step 1: Run orchestrator to get agent plan
+    orchestrationPlan = await runOrchestrator(extractedData);
 
-    // Update timeline
-    updateTimeline(agent.name, agent.description, i, false, false, agent.icon);
+    if (!orchestrationPlan || !orchestrationPlan.agentPlan || orchestrationPlan.agentPlan.length === 0) {
+      bootstrapAlert({ color: "warning", title: "No Agents Selected", body: "Orchestrator did not select any agents to run." });
+      displayResults(results, orchestrationPlan);
+      return;
+    }
 
-    // Mark stage as active
-    document.querySelectorAll(".workflow-stage").forEach((stage, idx) => {
-      stage.classList.remove("active", "completed");
-      if (idx < i) stage.classList.add("completed");
-      if (idx === i) stage.classList.add("active");
-    });
+    // Display orchestration plan
+    render(html`
+      <div class="mb-4">
+        <div class="alert alert-info">
+          <div class="d-flex align-items-start">
+            <i class="bi bi-diagram-3 display-6 me-3"></i>
+            <div class="flex-grow-1">
+              <h5 class="mb-2"><i class="bi bi-lightbulb me-2"></i>Orchestration Plan</h5>
+              <p class="mb-2"><strong>Scenario:</strong> ${orchestrationPlan.scenario}</p>
+              <p class="mb-2"><strong>Reasoning:</strong> ${orchestrationPlan.reasoning}</p>
+              <p class="mb-2"><strong>Agent Sequence:</strong> ${orchestrationPlan.agentPlan.join(' → ')}</p>
+              <p class="mb-0"><strong>Expected Outcome:</strong> ${orchestrationPlan.expectedOutcome}</p>
+            </div>
+          </div>
+        </div>
+      </div>
+      <div class="mb-3 d-flex justify-content-end">
+        <div class="btn-group btn-group-sm" role="group">
+          <button type="button" class="btn btn-outline-primary btn-sm" @click=${() => toggleAllAgents(true)}>
+            <i class="bi bi-arrows-expand me-1"></i>Expand All Agents
+          </button>
+          <button type="button" class="btn btn-outline-secondary btn-sm" @click=${() => toggleAllAgents(false)}>
+            <i class="bi bi-arrows-collapse me-1"></i>Collapse All Agents
+          </button>
+        </div>
+      </div>
+      <div class="accordion" id="agent-accordion"></div>
+    `, outputDiv);
 
-    try {
-      const agentResult = await runAgent(agent, extractedData, results);
-      results.push({
-        agent: agent.name,
-        stage: agent.stage,
-        ...agentResult,
+    // Step 2: Execute agents according to plan
+    for (let i = 0; i < orchestrationPlan.agentPlan.length; i++) {
+      const agentName = orchestrationPlan.agentPlan[i];
+      const agent = config.agents.find(a => a.name === agentName);
+
+      if (!agent) {
+        console.warn(`Agent ${agentName} not found in config`);
+        continue;
+      }
+
+      // Update timeline
+      updateTimeline(agent.name, agent.description, i + 1, false, false, agent.icon);
+
+      // Mark stages
+      const agentIndex = config.agents.findIndex(a => a.name === agentName);
+      document.querySelectorAll(".workflow-stage").forEach((stage, idx) => {
+        if (idx === agentIndex) {
+          stage.classList.add("active");
+        }
       });
 
-      updateTimeline(agent.name, agent.description, i, true, false, agent.icon);
-    } catch (e) {
-      console.error(`Error in ${agent.name}:`, e);
-      updateTimeline(agent.name, `Error: ${e.message}`, i, false, true, agent.icon);
-      bootstrapAlert({ color: "danger", title: `${agent.name} Error`, body: e.message });
+      try {
+        const agentResult = await runAgent(agent, extractedData, results);
+        results.push({
+          agent: agent.name,
+          stage: agent.stage,
+          ...agentResult,
+        });
+
+        updateTimeline(agent.name, agent.description, i + 1, true, false, agent.icon);
+
+        // Mark stage as completed
+        document.querySelectorAll(".workflow-stage").forEach((stage, idx) => {
+          if (idx === agentIndex) {
+            stage.classList.remove("active");
+            stage.classList.add("completed");
+          }
+        });
+      } catch (e) {
+        console.error(`Error in ${agent.name}:`, e);
+        updateTimeline(agent.name, `Error: ${e.message}`, i + 1, false, true, agent.icon);
+        bootstrapAlert({ color: "danger", title: `${agent.name} Error`, body: e.message });
+      }
     }
+
+    // Step 3: Run final evaluation agent
+    const finalEvaluation = await runFinalEvaluation(extractedData, results, orchestrationPlan);
+
+    // Show results with final evaluation
+    displayResults(results, orchestrationPlan, finalEvaluation);
+
+  } catch (e) {
+    console.error("Workflow processing error:", e);
+    bootstrapAlert({ color: "danger", title: "Workflow Error", body: e.message });
   }
-
-  // Mark all stages as completed
-  document.querySelectorAll(".workflow-stage").forEach(stage => {
-    stage.classList.remove("active");
-    stage.classList.add("completed");
-  });
-
-  // Show results
-  displayResults(results);
 }
 
-async function runAgent(agent, extractedData, previousResults) {
+// Run final evaluation to approve/reject
+async function runFinalEvaluation(extractedData, agentResults, orchestrationPlan) {
+  updateTimeline("Final Evaluation", "Synthesizing all agent outputs for final decision...", agentResults.length + 1, false, false, "bi bi-clipboard-check");
+
+  try {
+    const { baseUrl, apiKey } = await openaiConfig();
+
+    if (!baseUrl || !apiKey) {
+      throw new Error("LLM not configured");
+    }
+
+    // Prepare summary of all agent outputs
+    const agentSummaries = agentResults.map(r => ({
+      agent: r.agent,
+      stage: r.stage,
+      summary: r.summary,
+      concerns: r.concerns,
+      recommendations: r.recommendations
+    }));
+
+    const prompt = `You are a Final Decision Agent responsible for making the ultimate APPROVE or REJECT decision based on all agent analyses.
+
+**Scenario:** ${orchestrationPlan?.scenario || 'Document processing'}
+
+**Agent Analyses:**
+${JSON.stringify(agentSummaries, null, 2)}
+
+**Documents Processed:**
+${extractedData.map(d => `- ${d.filename}`).join('\n')}
+
+**Your Task:**
+Synthesize all the agent findings and make a final decision. Consider:
+1. Risk factors identified by agents
+2. Compliance and validation issues
+3. Financial concerns
+4. Overall document quality and completeness
+5. Recommendations from all agents
+
+**Return ONLY valid JSON with this exact structure:**
+{
+  "verdict": "APPROVE" or "REJECT",
+  "confidenceScore": 85,
+  "reasoning": "Detailed explanation of why this verdict was reached",
+  "keyFactors": [
+    "Factor 1 that influenced the decision",
+    "Factor 2 that influenced the decision"
+  ],
+  "riskLevel": "LOW", "MEDIUM", or "HIGH",
+  "criticalIssues": ["Issue 1", "Issue 2"] or [],
+  "recommendations": ["Final recommendation 1", "Final recommendation 2"]
+}
+
+The confidenceScore should be 0-100 based on:
+- Completeness of data (30%)
+- Absence of critical issues (40%)
+- Agent consensus (20%)
+- Data quality (10%)`;
+
+    const body = {
+      model: $("#model").value || config.defaults?.model || "gpt-5-mini",
+      messages: [{ role: "user", content: prompt }],
+      stream: true,
+    };
+
+    const temperatureValue = parseFloat($("#temperature").value);
+    if (temperatureValue && temperatureValue !== 1) {
+      body.temperature = temperatureValue;
+    }
+
+    let fullResponse = "";
+    const evalIndex = agentOutputs.length;
+
+    // Add placeholder for evaluation agent
+    agentOutputs.push({
+      agent: {
+        name: "Final Evaluation",
+        icon: "bi bi-clipboard-check",
+        description: "Final approval decision"
+      },
+      status: 'processing',
+      data: null
+    });
+
+    renderAgentOutputs();
+
+    // Stream the response
+    for await (
+      const { content, error } of asyncLLM(`${baseUrl}/chat/completions`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json", Authorization: `Bearer ${apiKey}` },
+        body: JSON.stringify(body),
+      })
+    ) {
+      if (error) {
+        throw new Error(`API error: ${JSON.stringify(error)}`);
+      }
+      if (!content) continue;
+
+      fullResponse = content;
+
+      try {
+        const parsed = parse(fullResponse);
+        agentOutputs[evalIndex].data = parsed;
+        agentOutputs[evalIndex].status = 'streaming';
+        renderAgentOutputs();
+      } catch (parseError) {
+        agentOutputs[evalIndex].data = { raw: fullResponse };
+        agentOutputs[evalIndex].status = 'streaming';
+        renderAgentOutputs();
+      }
+    }
+
+    agentOutputs[evalIndex].status = 'completed';
+    renderAgentOutputs();
+
+    const evaluation = JSON.parse(fullResponse);
+    updateTimeline("Final Evaluation", `${evaluation.verdict} (${evaluation.confidenceScore}% confidence)`, agentResults.length + 1, true, false, "bi bi-clipboard-check");
+
+    return evaluation;
+
+  } catch (e) {
+    console.error("Final evaluation error:", e);
+    updateTimeline("Final Evaluation", `Error: ${e.message}`, agentResults.length + 1, false, true, "bi bi-clipboard-check");
+    throw e;
+  }
+}
+
+async function runAgent(agent, extractedData, previousResults, isOrchestrator = false) {
   const { baseUrl, apiKey } = await openaiConfig();
 
   // Check if LLM is configured
@@ -511,14 +792,47 @@ async function runAgent(agent, extractedData, previousResults) {
     throw new Error("LLM not configured. Please click the 'Configure LLM' button (🪄) in the navigation bar to set your API endpoint and key.");
   }
 
-  // Prepare context from extracted data and previous results
-  const context = {
-    files: extractedData.map(d => ({ filename: d.filename, preview: d.text.substring(0, 500) })),
-    previousResults: previousResults.map(r => ({ agent: r.agent, summary: r.summary })),
-  };
+  let prompt;
 
-  // Build prompt
-  const prompt = `You are ${agent.name}, an AI agent specialized in ${agent.description}.
+  if (isOrchestrator) {
+    // For orchestrator, use custom prompt with agent catalog
+    const agentCatalog = config.agents.map(agent => ({
+      name: agent.name,
+      description: agent.description,
+      role: agent.role,
+      capabilities: agent.task
+    }));
+
+    prompt = `You are ${agent.name}, ${agent.description}.
+
+${agent.role}
+
+**Available Agents:**
+${JSON.stringify(agentCatalog, null, 2)}
+
+**Uploaded Files:**
+${extractedData.map(d => `- ${d.filename} (${d.type || 'unknown type'})`).join('\n')}
+
+**File Content Preview:**
+${extractedData.map(d => `File: ${d.filename}\nPreview: ${d.text.substring(0, 300)}...\n`).join('\n---\n')}
+
+**Task:** ${agent.task}
+
+**IMPORTANT:** Return ONLY valid JSON with this exact structure:
+{
+  "scenario": "brief description of detected scenario",
+  "reasoning": "why you chose this scenario and agent sequence",
+  "agentPlan": ["AgentName1", "AgentName2", ...],
+  "expectedOutcome": "what we expect to achieve"
+}`;
+  } else {
+    // Regular agent prompt
+    const context = {
+      files: extractedData.map(d => ({ filename: d.filename, preview: d.text.substring(0, 500) })),
+      previousResults: previousResults.map(r => ({ agent: r.agent, summary: r.summary })),
+    };
+
+    prompt = `You are ${agent.name}, an AI agent specialized in ${agent.description}.
 
 Your role: ${agent.role}
 
@@ -537,6 +851,7 @@ Provide a structured analysis with:
 4. Any risks or concerns identified
 
 Format your response as JSON with keys: summary, findings, recommendations, concerns`;
+  }
 
   const body = {
     model: $("#model").value || config.defaults?.model || "gpt-5-mini",
@@ -624,6 +939,31 @@ Format your response as JSON with keys: summary, findings, recommendations, conc
   }
 }
 
+// Toggle all agent accordions and their details
+function toggleAllAgents(open) {
+  const accordion = document.getElementById('agent-accordion');
+  if (!accordion) return;
+
+  // Toggle all accordion collapses
+  const allCollapses = accordion.querySelectorAll('.accordion-collapse');
+  allCollapses.forEach(collapse => {
+    const bsCollapse = new bootstrap.Collapse(collapse, { toggle: false });
+    if (open) {
+      bsCollapse.show();
+    } else {
+      bsCollapse.hide();
+    }
+  });
+
+  // Also toggle all details elements within agents
+  if (open) {
+    const allDetails = accordion.querySelectorAll('details');
+    allDetails.forEach(detail => {
+      detail.open = true;
+    });
+  }
+}
+
 // Render all agent outputs in accordion format
 function renderAgentOutputs() {
   const outputDiv = $("#agent-output");
@@ -681,11 +1021,124 @@ function renderAgentOutputs() {
   );
 }
 
+// Render final evaluation verdict
+function renderFinalVerdict(evaluation) {
+  const isApproved = evaluation.verdict === "APPROVE";
+  const verdictColor = isApproved ? "success" : "danger";
+  const verdictIcon = isApproved ? "bi-check-circle-fill" : "bi-x-circle-fill";
+
+  // Determine confidence level
+  let confidenceLevel = "Low";
+  let confidenceColor = "danger";
+  if (evaluation.confidenceScore >= 80) {
+    confidenceLevel = "High";
+    confidenceColor = "success";
+  } else if (evaluation.confidenceScore >= 60) {
+    confidenceLevel = "Medium";
+    confidenceColor = "warning";
+  }
+
+  // Determine risk badge color
+  const riskColors = {
+    "LOW": "success",
+    "MEDIUM": "warning",
+    "HIGH": "danger"
+  };
+  const riskColor = riskColors[evaluation.riskLevel] || "secondary";
+
+  return html`
+    <div class="final-verdict">
+      <!-- Main Verdict Card -->
+      <div class="card border-${verdictColor} mb-4">
+        <div class="card-body text-center py-4">
+          <i class="bi ${verdictIcon} display-1 text-${verdictColor} mb-3"></i>
+          <h2 class="display-4 fw-bold text-${verdictColor} mb-2">${evaluation.verdict}</h2>
+          <div class="d-flex justify-content-center align-items-center gap-3 mb-3">
+            <span class="badge bg-${confidenceColor} fs-5 px-4 py-2">
+              ${evaluation.confidenceScore}% Confidence
+            </span>
+            <span class="badge bg-${riskColor} fs-5 px-4 py-2">
+              ${evaluation.riskLevel} Risk
+            </span>
+          </div>
+          <div class="progress mb-2" style="height: 25px;">
+            <div class="progress-bar bg-${confidenceColor}" role="progressbar"
+                 style="width: ${evaluation.confidenceScore}%"
+                 aria-valuenow="${evaluation.confidenceScore}" aria-valuemin="0" aria-valuemax="100">
+              ${evaluation.confidenceScore}%
+            </div>
+          </div>
+          <p class="text-muted mb-0"><small>Confidence Level: ${confidenceLevel}</small></p>
+        </div>
+      </div>
+
+      <!-- Reasoning -->
+      ${evaluation.reasoning ? html`
+        <div class="card mb-4">
+          <div class="card-header bg-primary text-white">
+            <i class="bi bi-lightbulb-fill me-2"></i><strong>Reasoning</strong>
+          </div>
+          <div class="card-body">
+            <p class="mb-0">${evaluation.reasoning}</p>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Key Factors -->
+      ${evaluation.keyFactors && evaluation.keyFactors.length > 0 ? html`
+        <div class="card mb-4">
+          <div class="card-header bg-info text-white">
+            <i class="bi bi-list-check me-2"></i><strong>Key Factors</strong>
+          </div>
+          <div class="card-body">
+            <ul class="mb-0">
+              ${evaluation.keyFactors.map(factor => html`<li>${factor}</li>`)}
+            </ul>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Critical Issues -->
+      ${evaluation.criticalIssues && evaluation.criticalIssues.length > 0 ? html`
+        <div class="card border-danger mb-4">
+          <div class="card-header bg-danger text-white">
+            <i class="bi bi-exclamation-triangle-fill me-2"></i><strong>Critical Issues</strong>
+          </div>
+          <div class="card-body">
+            <ul class="mb-0 text-danger">
+              ${evaluation.criticalIssues.map(issue => html`<li><strong>${issue}</strong></li>`)}
+            </ul>
+          </div>
+        </div>
+      ` : ''}
+
+      <!-- Final Recommendations -->
+      ${evaluation.recommendations && evaluation.recommendations.length > 0 ? html`
+        <div class="card border-success">
+          <div class="card-header bg-success text-white">
+            <i class="bi bi-arrow-right-circle-fill me-2"></i><strong>Final Recommendations</strong>
+          </div>
+          <div class="card-body">
+            <ul class="mb-0">
+              ${evaluation.recommendations.map(rec => html`<li>${rec}</li>`)}
+            </ul>
+          </div>
+        </div>
+      ` : ''}
+    </div>
+  `;
+}
+
 // Render agent data as structured tables
 function renderAgentData(data) {
   if (data.raw) {
     // Raw text response
     return html`<pre class="border p-3 rounded">${data.raw}</pre>`;
+  }
+
+  // Check if this is a final evaluation verdict
+  if (data.verdict && data.confidenceScore !== undefined) {
+    return renderFinalVerdict(data);
   }
 
   return html`
@@ -827,8 +1280,9 @@ function renderValue(value) {
   }
 
   if (typeof value === 'string') {
-    // Check if it's a long string
-    if (value.length > 100) {
+    // Display sentences directly without collapsing them
+    // Only collapse very long text (> 500 chars) like paragraphs or documents
+    if (value.length > 500) {
       return html`<details><summary>View (${value.length} chars)</summary><pre class="mt-2 p-2 border rounded">${value}</pre></details>`;
     }
     return html`<span>${value}</span>`;
@@ -922,19 +1376,48 @@ function updateTimeline(title, description, index = null, completed = false, err
   renderTimeline(items);
 }
 
-function displayResults(results) {
+
+function displayResults(results, plan = null, finalEvaluation = null) {
   $("#results-section").classList.remove("d-none");
   const resultsDiv = $("#results-output");
 
   render(
     html`
+      ${finalEvaluation ? html`
+        <div class="mb-5">
+          <h3 class="text-center mb-4">
+            <i class="bi bi-clipboard-check me-2"></i>Final Decision
+          </h3>
+          ${renderFinalVerdict(finalEvaluation)}
+        </div>
+      ` : ''}
+
+      ${plan ? html`
+        <div class="alert alert-info border-info mb-4">
+          <div class="d-flex align-items-start">
+            <i class="bi bi-diagram-3 display-5 me-3"></i>
+            <div class="flex-grow-1">
+              <h4 class="alert-heading mb-2">
+                <i class="bi bi-diagram-3 me-2"></i>Orchestration Summary
+              </h4>
+              <p class="mb-2"><strong>Scenario:</strong> ${plan.scenario}</p>
+              <p class="mb-2"><strong>Agents Executed:</strong> ${plan.agentPlan?.join(' → ') || 'N/A'}</p>
+              <p class="mb-0"><strong>Outcome:</strong> ${plan.expectedOutcome}</p>
+            </div>
+          </div>
+        </div>
+      ` : ''}
+
+      <h4 class="mt-5 mb-3">
+        <i class="bi bi-person-workspace me-2"></i>Detailed Agent Reports
+      </h4>
       <div class="row g-4">
         ${results.map(result => html`
           <div class="col-md-6">
             <div class="card h-100">
               <div class="card-header bg-primary text-white">
                 <i class="bi bi-check-circle me-2"></i>${result.agent}
-                <span class="badge ms-2">${result.stage}</span>
+                <span class="badge bg-white text-primary ms-2">${result.stage}</span>
               </div>
               <div class="card-body">
                 ${result.summary ? html`<div class="mb-3"><strong>Summary:</strong><br>${unsafeHTML(marked.parse(result.summary))}</div>` : ""}

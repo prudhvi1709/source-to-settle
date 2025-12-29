@@ -6,6 +6,7 @@ import { html, render } from "lit-html";
 import { config } from "./config.js";
 import { updateWorkflowNode, activateWorkflowPath } from "./workflow.js";
 import { updateTimeline, renderAgentOutputs, toggleAllAgents } from "./ui.js";
+import { getPrompt } from "./promptLoader.js";
 
 // Global state
 export let agentOutputs = [];
@@ -142,28 +143,15 @@ export async function runOrchestrator(extractedData) {
     capabilities: agent.task
   }));
 
-  const prompt = `You are ${orchestratorConfig.name}, ${orchestratorConfig.description}.
-
-${orchestratorConfig.role}
-
-**Available Agents:**
-${JSON.stringify(agentCatalog, null, 2)}
-
-**Uploaded Files:**
-${extractedData.map(d => `- ${d.filename} (${d.type || 'unknown type'})`).join('\n')}
-
-**File Content Preview:**
-${extractedData.map(d => `File: ${d.filename}\nPreview: ${d.text.substring(0, 300)}...\n`).join('\n---\n')}
-
-**Task:** ${orchestratorConfig.task}
-
-**IMPORTANT:** Return ONLY valid JSON with this exact structure:
-{
-  "scenario": "brief description of detected scenario",
-  "reasoning": "why you chose this scenario and agent sequence",
-  "agentPlan": ["AgentName1", "AgentName2", ...],
-  "expectedOutcome": "what we expect to achieve"
-}`;
+  const prompt = await getPrompt('orchestrator', {
+    name: orchestratorConfig.name,
+    description: orchestratorConfig.description,
+    role: orchestratorConfig.role,
+    agentCatalog: JSON.stringify(agentCatalog, null, 2),
+    fileList: extractedData.map(d => `- ${d.filename} (${d.type || 'unknown type'})`).join('\n'),
+    filePreview: extractedData.map(d => `File: ${d.filename}\nPreview: ${d.text.substring(0, 300)}...\n`).join('\n---\n'),
+    task: orchestratorConfig.task
+  });
 
   // Don't add orchestrator to agentOutputs - it's displayed separately in the plan box
   try {
@@ -234,25 +222,14 @@ export async function runAgent(agent, extractedData, previousResults) {
     previousResults: previousResults.map(r => ({ agent: r.agent, summary: r.summary })),
   };
 
-  const prompt = `You are ${agent.name}, an AI agent specialized in ${agent.description}.
-
-Your role: ${agent.role}
-
-Context:
-${JSON.stringify(context, null, 2)}
-
-Full extracted data:
-${extractedData.map(d => `File: ${d.filename}\n${d.text}`).join("\n\n---\n\n")}
-
-Task: ${agent.task}
-
-Provide a structured analysis with:
-1. Summary of findings
-2. Key data points extracted
-3. Recommendations or next steps
-4. Any risks or concerns identified
-
-Format your response as JSON with keys: summary, findings, recommendations, concerns`;
+  const prompt = await getPrompt('agent', {
+    agentName: agent.name,
+    description: agent.description,
+    role: agent.role,
+    context: JSON.stringify(context, null, 2),
+    extractedData: extractedData.map(d => `File: ${d.filename}\n${d.text}`).join("\n\n---\n\n"),
+    task: agent.task
+  });
 
   const agentIndex = agentOutputs.length;
   agentOutputs.push({
@@ -291,43 +268,11 @@ export async function runFinalEvaluation(extractedData, agentResults) {
     recommendations: r.recommendations
   }));
 
-  const prompt = `You are a Final Decision Agent responsible for making the ultimate APPROVE or REJECT decision based on all agent analyses.
-
-**Scenario:** ${orchestrationPlan?.scenario || 'Document processing'}
-
-**Agent Analyses:**
-${JSON.stringify(agentSummaries, null, 2)}
-
-**Documents Processed:**
-${extractedData.map(d => `- ${d.filename}`).join('\n')}
-
-**Your Task:**
-Synthesize all the agent findings and make a final decision. Consider:
-1. Risk factors identified by agents
-2. Compliance and validation issues
-3. Financial concerns
-4. Overall document quality and completeness
-5. Recommendations from all agents
-
-**Return ONLY valid JSON with this exact structure:**
-{
-  "verdict": "APPROVE" or "REJECT",
-  "confidenceScore": 85,
-  "reasoning": "Detailed explanation of why this verdict was reached",
-  "keyFactors": [
-    "Factor 1 that influenced the decision",
-    "Factor 2 that influenced the decision"
-  ],
-  "riskLevel": "LOW", "MEDIUM", or "HIGH",
-  "criticalIssues": ["Issue 1", "Issue 2"] or [],
-  "recommendations": ["Final recommendation 1", "Final recommendation 2"]
-}
-
-The confidenceScore should be 0-100 based on:
-- Completeness of data (30%)
-- Absence of critical issues (40%)
-- Agent consensus (20%)
-- Data quality (10%)`;
+  const prompt = await getPrompt('evaluation', {
+    scenario: orchestrationPlan?.scenario || 'Document processing',
+    agentSummaries: JSON.stringify(agentSummaries, null, 2),
+    documentList: extractedData.map(d => `- ${d.filename}`).join('\n')
+  });
 
   const evalIndex = agentOutputs.length;
   agentOutputs.push({

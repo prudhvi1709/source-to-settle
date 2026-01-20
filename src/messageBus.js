@@ -47,12 +47,14 @@ class EventEmitter {
  * Emits UI events for every action so it's fully visible in real-time
  */
 export class MessageBus extends EventEmitter {
-  constructor() {
+  constructor(maxRounds = 3, maxQuestions = null) {
     super();
     this.messages = [];           // Full conversation history
     this.activeAgents = new Map(); // agent name → agent instance
     this.round = 0;               // Current conversation round
-    this.maxRounds = 3;           // Maximum rounds before forced termination (demo-optimized)
+    this.maxRounds = maxRounds;   // Maximum rounds before forced termination (demo-optimized)
+    this.maxQuestions = maxQuestions; // Maximum total questions allowed (null = unlimited)
+    this.questionCount = 0;       // Track total questions asked
     this.paused = false;          // HITL pause flag
     this.pendingHITL = null;      // Current HITL escalation awaiting response
   }
@@ -99,10 +101,23 @@ export class MessageBus extends EventEmitter {
       throw new Error(`Invalid message: ${validation.errors.join(', ')}`);
     }
 
+    // Check question limit (if set)
+    if (this.maxQuestions !== null && message.type === 'question') {
+      if (this.questionCount >= this.maxQuestions) {
+        console.warn(`⚠️ Question limit reached (${this.maxQuestions}/${this.maxQuestions}). Ignoring question from ${message.from}`);
+        return; // Silently ignore additional questions
+      }
+    }
+
     // If paused (HITL in progress), queue message
     if (this.paused && !message.isHITL()) {
       console.log(`⏸️ Message queued (HITL in progress): ${message.toString()}`);
       return;
+    }
+
+    // Track questions
+    if (message.type === 'question') {
+      this.questionCount++;
     }
 
     // Store message
@@ -346,6 +361,16 @@ export class MessageBus extends EventEmitter {
    * Check if conversation should end
    */
   shouldEndConversation() {
+    // Max questions reached (if limit set)
+    if (this.maxQuestions !== null && this.questionCount >= this.maxQuestions) {
+      console.warn(`⚠️ Max questions (${this.maxQuestions}) reached - ending conversation`);
+      this.emit('max-questions-reached', {
+        questionCount: this.questionCount,
+        maxQuestions: this.maxQuestions
+      });
+      return true;
+    }
+
     // Max rounds reached
     if (this.round >= this.maxRounds) {
       console.warn(`⚠️ Max rounds (${this.maxRounds}) reached - ending conversation`);
@@ -436,6 +461,7 @@ export class MessageBus extends EventEmitter {
   reset() {
     this.messages = [];
     this.round = 0;
+    this.questionCount = 0;
     this.paused = false;
     this.pendingHITL = null;
 
@@ -475,11 +501,11 @@ export function getMessageBus() {
   return messageBusInstance;
 }
 
-export function resetMessageBus() {
+export function resetMessageBus(maxRounds = 3, maxQuestions = null) {
   if (messageBusInstance) {
     messageBusInstance.reset();
   }
-  messageBusInstance = new MessageBus();
+  messageBusInstance = new MessageBus(maxRounds, maxQuestions);
   return messageBusInstance;
 }
 

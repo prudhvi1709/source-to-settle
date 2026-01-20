@@ -44,6 +44,8 @@ export class ConversationDashboard {
     console.log('📊 Dashboard: Conversation started, rendering dashboard');
     this.startTime = Date.now();
     this.renderDashboard();
+    // Initialize header stats
+    this.updateHeaderStats(this.bus.getAnalytics());
   }
 
   onMessage(data) {
@@ -73,17 +75,21 @@ export class ConversationDashboard {
   onRoundChange(data) {
     console.log(`📊 Dashboard: Round change to ${data.to}`);
     this.updateMetrics();
+    this.updateHeaderStats(this.bus.getAnalytics());
     this.addRoundDivider(data.to);
   }
 
   onComplete(data) {
     this.updateMetrics();
+    this.updateHeaderStats(this.bus.getAnalytics());
     const elapsed = Date.now() - this.startTime;
     this.showCompletionBanner(data.rounds, elapsed);
   }
 
   onEscalation(data) {
     this.addEscalationCard(data);
+    // Update header stats to reflect new escalation count
+    this.updateHeaderStats(this.bus.getAnalytics());
   }
 
   onAgentStreaming(data) {
@@ -152,6 +158,9 @@ export class ConversationDashboard {
     const elapsed = Date.now() - this.startTime;
     const elapsedSeconds = Math.floor(elapsed / 1000);
 
+    // Update header stats
+    this.updateHeaderStats(analytics);
+
     const metricsContainer = document.querySelector('#dashboard-metrics');
     if (!metricsContainer) {
       console.warn('⚠️ Dashboard: #dashboard-metrics not found');
@@ -159,20 +168,27 @@ export class ConversationDashboard {
     }
     console.log(`📊 Dashboard: Updating metrics - Round ${analytics.currentRound}, Messages ${analytics.totalMessages}`);
 
+    // Check if question limit is set
+    const questionCount = this.bus.questionCount || 0;
+    const maxQuestions = this.bus.maxQuestions;
+    const questionSubtext = maxQuestions
+      ? `${questionCount} of ${maxQuestions} questions asked`
+      : `${questionCount} questions asked`;
+
     const metrics = [
+      {
+        icon: 'bi-question-circle',
+        label: 'Questions Asked',
+        value: questionCount,
+        color: maxQuestions && questionCount >= maxQuestions ? 'danger' : 'primary',
+        subtext: questionSubtext
+      },
       {
         icon: 'bi-arrow-repeat',
         label: 'Conversation Rounds',
         value: analytics.currentRound || 0,
-        color: 'primary',
-        subtext: `Max: 3 rounds`
-      },
-      {
-        icon: 'bi-chat-dots',
-        label: 'Messages Exchanged',
-        value: analytics.totalMessages || 0,
         color: 'info',
-        subtext: `${analytics.byType?.question || 0} questions, ${analytics.byType?.answer || 0} answers`
+        subtext: `Max: ${this.bus.maxRounds} rounds`
       },
       {
         icon: 'bi-people',
@@ -277,6 +293,23 @@ export class ConversationDashboard {
         if (pulse) pulse.style.display = 'block';
       }
     });
+  }
+
+  updateHeaderStats(analytics) {
+    // Update conversation header stats
+    const statRounds = document.querySelector('#stat-rounds');
+    const statMessages = document.querySelector('#stat-messages');
+    const statEscalations = document.querySelector('#stat-escalations');
+
+    if (statRounds) {
+      statRounds.textContent = analytics.currentRound || 0;
+    }
+    if (statMessages) {
+      statMessages.textContent = analytics.totalMessages || 0;
+    }
+    if (statEscalations) {
+      statEscalations.textContent = analytics.escalations || 0;
+    }
   }
 
   addActivityItem(message) {
@@ -385,8 +418,15 @@ export class ConversationDashboard {
 
     const card = document.createElement('div');
     card.className = 'escalation-card animate-slide-in mb-3';
+    card.style.cursor = 'pointer';
+    card.title = 'Click to review this escalation';
+
+    // Store escalation data for reopening modal
+    card.dataset.escalationId = message.id;
+    card._escalationData = data; // Store full escalation data
+
     card.innerHTML = `
-      <div class="alert alert-danger border-danger border-2 shadow">
+      <div class="alert alert-danger border-danger border-2 shadow hover-lift">
         <div class="d-flex align-items-start">
           <div class="escalation-icon me-3">
             <i class="bi bi-exclamation-triangle-fill fs-1 text-danger animate-pulse"></i>
@@ -394,6 +434,7 @@ export class ConversationDashboard {
           <div class="flex-grow-1">
             <h5 class="alert-heading mb-2">
               <i class="bi bi-person-fill me-2"></i>Human Decision Required
+              <small class="text-muted ms-2">(Click to review)</small>
             </h5>
             <p class="mb-2"><strong>From:</strong> ${message.from} <strong>To:</strong> ${message.metadata.requiresRole}</p>
             <p class="mb-2"><strong>Type:</strong> <span class="badge bg-danger">${message.metadata.escalationType}</span></p>
@@ -402,6 +443,23 @@ export class ConversationDashboard {
         </div>
       </div>
     `;
+
+    // Add click handler to reopen modal
+    card.addEventListener('click', () => {
+      console.log('🚨 Reopening HITL modal for escalation:', message.id);
+      // Re-emit the escalation event to trigger modal
+      this.bus.emit('hitl-escalation', data);
+    });
+
+    // Add hover effect
+    const alertDiv = card.querySelector('.alert');
+    card.addEventListener('mouseenter', () => {
+      alertDiv.style.transform = 'translateY(-2px)';
+      alertDiv.style.transition = 'transform 0.2s ease';
+    });
+    card.addEventListener('mouseleave', () => {
+      alertDiv.style.transform = 'translateY(0)';
+    });
 
     stream.appendChild(card);
     stream.scrollTop = stream.scrollHeight;

@@ -317,7 +317,7 @@ export async function runFinalEvaluation(extractedData, agentResults) {
 }
 
 // Multi-Agentic Workflow (NEW)
-export async function processMultiAgenticWorkflow(extractedData) {
+export async function processMultiAgenticWorkflow(extractedData, numberOfQuestions = 3) {
   agentOutputs = [];
 
   try {
@@ -368,7 +368,9 @@ export async function processMultiAgenticWorkflow(extractedData) {
     }
 
     // Step 2: Initialize multi-agentic system
-    const messageBus = resetMessageBus();
+    // Use numberOfQuestions to limit total questions, allow up to 10 rounds
+    const maxRounds = 10; // Generous round limit since we're limiting by questions
+    const messageBus = resetMessageBus(maxRounds, numberOfQuestions);
     const dashboard = new ConversationDashboard(messageBus);
     const hitlModal = new HITLModal(messageBus);
 

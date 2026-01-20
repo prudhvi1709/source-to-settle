@@ -5,12 +5,16 @@ import { html, render } from "lit-html";
 import saveform from "saveform";
 import { config } from "./config.js";
 import { setupFileHandlers, getUploadedFiles, loadSampleFiles, extractText } from "./fileHandler.js";
-import { initWorkflowViz, activateWorkflowPath } from "./workflow.js";
+// Workflow visualization imports (disabled for now - focusing on dashboard)
+// import { initWorkflowViz, activateWorkflowPath } from "./workflow.js";
 import { renderTimeline, displayResults, toggleAllAgents } from "./ui.js";
-import { processAgentWorkflow } from "./agent.js";
+import { processMultiAgenticWorkflow } from "./agent.js";
 
 // Helpers
 const $ = (selector) => document.querySelector(selector);
+
+// Track current demo for configuration
+let currentDemo = null;
 
 // Setup settings form persistence
 const settingsForm = saveform("#settings-form");
@@ -40,11 +44,12 @@ if (workflowToggleBtn) {
     if (!isExpanded) {
       setTimeout(() => {
         if (window.workflowViz) {
-          initWorkflowViz();
-          const orchestrationPlan = window.orchestrationPlan;
-          if (orchestrationPlan?.agentPlan) {
-            activateWorkflowPath(orchestrationPlan.agentPlan);
-          }
+          // Workflow visualization disabled for now
+          // initWorkflowViz();
+          // const orchestrationPlan = window.orchestrationPlan;
+          // if (orchestrationPlan?.agentPlan) {
+          //   activateWorkflowPath(orchestrationPlan.agentPlan);
+          // }
         }
       }, 350);
     }
@@ -60,19 +65,20 @@ if (workflowBannerHeader) {
   });
 }
 
-// Show/hide workflow banner
+// Show/hide workflow banner (disabled for now - focusing on dashboard)
 function showWorkflowBanner() {
-  if (workflowBanner) {
-    workflowBanner.classList.remove("d-none");
-    if (!window.workflowViz) {
-      initWorkflowViz();
-    }
-    setTimeout(() => {
-      if (workflowToggleBtn && workflowToggleBtn.getAttribute("aria-expanded") !== "true") {
-        workflowToggleBtn.click();
-      }
-    }, 300);
-  }
+  // Workflow visualization disabled
+  // if (workflowBanner) {
+  //   workflowBanner.classList.remove("d-none");
+  //   if (!window.workflowViz) {
+  //     initWorkflowViz();
+  //   }
+  //   setTimeout(() => {
+  //     if (workflowToggleBtn && workflowToggleBtn.getAttribute("aria-expanded") !== "true") {
+  //       workflowToggleBtn.click();
+  //     }
+  //   }, 300);
+  // }
 }
 
 // Render demo cards
@@ -116,18 +122,38 @@ $("#demo-cards")?.addEventListener("click", async (e) => {
   const demo = config.demos[index];
   if (!demo) return;
 
-  await loadSampleFiles(demo.files || []);
+  // Store current demo for configuration
+  currentDemo = demo;
 
-  const uploadZone = $("#file-upload-zone");
-  if (uploadZone) {
-    uploadZone.scrollIntoView({ behavior: "smooth", block: "center" });
+  // Show loading state on demo button
+  const originalText = button.innerHTML;
+  button.disabled = true;
+  button.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status"></span>Loading...';
+
+  try {
+    await loadSampleFiles(demo.files || []);
+
+    bootstrapAlert({
+      color: "success",
+      title: "Demo Starting",
+      body: `Loaded ${getUploadedFiles().length} file(s). Processing automatically...`
+    });
+
+    // Automatically start processing after a short delay (for UX)
+    setTimeout(() => {
+      processDocuments();
+    }, 500);
+  } catch (error) {
+    bootstrapAlert({
+      color: "danger",
+      title: "Demo Error",
+      body: `Failed to load demo: ${error.message}`
+    });
+  } finally {
+    // Re-enable button
+    button.disabled = false;
+    button.innerHTML = originalText;
   }
-
-  bootstrapAlert({
-    color: "info",
-    title: "Files Loaded",
-    body: `Loaded ${getUploadedFiles().length} file(s). Preview them using the eye icon 👁️, then click "Process Documents" when ready.`
-  });
 });
 
 // Load sample data buttons
@@ -157,7 +183,17 @@ async function loadSampleFilesByType(type) {
 // Process documents
 async function processDocuments() {
   const uploadedFiles = getUploadedFiles();
-  if (uploadedFiles.length === 0) return;
+  if (uploadedFiles.length === 0) {
+    bootstrapAlert({ color: "warning", title: "No Files", body: "Please upload files before processing." });
+    return;
+  }
+
+  // Show loading state on button
+  const processBtn = $("#process-btn");
+  if (processBtn) {
+    processBtn.disabled = true;
+    processBtn.innerHTML = '<span class="spinner-border spinner-border-sm me-2" role="status" aria-hidden="true"></span>Processing...';
+  }
 
   showWorkflowBanner();
   const statusText = $("#workflow-status-text");
@@ -165,6 +201,21 @@ async function processDocuments() {
 
   $("#processing-section")?.classList.remove("d-none");
   $("#results-section")?.classList.add("d-none");
+
+  // Show initial loading state in processing section
+  const processingSection = $("#processing-section");
+  if (processingSection) {
+    const loadingDiv = document.createElement('div');
+    loadingDiv.id = 'processing-loader';
+    loadingDiv.className = 'text-center py-5';
+    loadingDiv.innerHTML = `
+      <div class="spinner-border text-primary" role="status" style="width: 3rem; height: 3rem;">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+      <p class="mt-3 text-muted">Extracting text from documents...</p>
+    `;
+    processingSection.insertBefore(loadingDiv, processingSection.firstChild);
+  }
 
   renderTimeline([]);
 
@@ -199,18 +250,44 @@ async function processDocuments() {
     }
   }
 
-  // Process through agent workflow
+  // Remove loading spinner after extraction
+  const loadingDiv = document.getElementById('processing-loader');
+  if (loadingDiv) {
+    loadingDiv.remove();
+  }
+
+  // Process through multi-agentic workflow
   try {
-    const { results, orchestrationPlan, finalEvaluation } = await processAgentWorkflow(extractedData);
+    console.log('🚀 Starting Multi-Agentic Workflow');
+
+    // Get numberOfQuestions from current demo, default to 3
+    const numberOfQuestions = currentDemo?.numberOfQuestions || 3;
+
+    const { results, orchestrationPlan, finalEvaluation, conversationHistory, conversationRounds } =
+      await processMultiAgenticWorkflow(extractedData, numberOfQuestions);
 
     // Store for potential workflow banner re-render
     window.orchestrationPlan = orchestrationPlan;
 
     // Display results
     displayResults(results, orchestrationPlan, finalEvaluation);
+
+    console.log(`✅ Completed ${conversationRounds} rounds of agent conversation`);
   } catch (e) {
     console.error("Processing error:", e);
     bootstrapAlert({ color: "danger", title: "Processing Error", body: e.message });
+  } finally {
+    // Remove loading spinner if still present
+    const remainingLoader = document.getElementById('processing-loader');
+    if (remainingLoader) {
+      remainingLoader.remove();
+    }
+
+    // Re-enable button and restore text
+    if (processBtn) {
+      processBtn.disabled = false;
+      processBtn.innerHTML = '<i class="bi bi-play-circle me-2"></i>Process Documents';
+    }
   }
 }
 

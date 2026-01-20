@@ -118,7 +118,17 @@ export const FILE_HANDLERS = {
       }
     }
   },
-  docx: { get icon() { return FILE_HANDLERS.doc.icon; }, get preview() { return FILE_HANDLERS.doc.preview; }, get extract() { return FILE_HANDLERS.doc.extract; } }
+  docx: { get icon() { return FILE_HANDLERS.doc.icon; }, get preview() { return FILE_HANDLERS.doc.preview; }, get extract() { return FILE_HANDLERS.doc.extract; } },
+  txt: {
+    icon: "bi-file-text-fill text-secondary",
+    async preview(file) {
+      const text = await file.text();
+      return { type: 'text', content: text, name: file.name };
+    },
+    async extract(file) {
+      return await file.text();
+    }
+  }
 };
 
 // Helper to get file extension

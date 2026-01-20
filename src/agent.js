@@ -4,9 +4,15 @@ import { openaiConfig } from "bootstrap-llm-provider";
 import { parse } from "partial-json";
 import { html, render } from "lit-html";
 import { config } from "./config.js";
-import { updateWorkflowNode, activateWorkflowPath } from "./workflow.js";
+// Workflow visualization imports (disabled for now - focusing on dashboard)
+// import { updateWorkflowNode, activateWorkflowPath, setupWorkflowMessageListeners } from "./workflow.js";
 import { updateTimeline, renderAgentOutputs, toggleAllAgents } from "./ui.js";
 import { getPrompt } from "./promptLoader.js";
+import { resetMessageBus } from "./messageBus.js";
+import { ConversationManager } from "./conversationManager.js";
+import { AgenticAgent } from "./agenticAgent.js";
+import { ConversationDashboard } from "./conversationDashboard.js";
+import { HITLModal } from "./hitlModal.js";
 
 // Global state
 export let agentOutputs = [];
@@ -32,8 +38,8 @@ export class WorkflowStatus {
       updateTimeline(agentName, description, index, status === 'completed', status === 'error', icon);
     }
 
-    // Update workflow visualization
-    updateWorkflowNode(agentName, status);
+    // Update workflow visualization (disabled for now)
+    // updateWorkflowNode(agentName, status);
 
     // Update banner
     if (step) {
@@ -199,9 +205,10 @@ export async function runOrchestrator(extractedData) {
       index: 0
     });
 
-    if (result.agentPlan) {
-      activateWorkflowPath(result.agentPlan);
-    }
+    // Disabled workflow visualization
+    // if (result.agentPlan) {
+    //   activateWorkflowPath(result.agentPlan);
+    // }
 
     return result;
   } catch (e) {
@@ -309,7 +316,141 @@ export async function runFinalEvaluation(extractedData, agentResults) {
   }
 }
 
-// Process agent workflow
+// Multi-Agentic Workflow (NEW)
+export async function processMultiAgenticWorkflow(extractedData, numberOfQuestions = 3) {
+  agentOutputs = [];
+
+  try {
+    console.log('\n🚀 Starting Multi-Agentic Workflow...\n');
+
+    // Hide old sequential UI elements
+    const progressTimeline = document.querySelector('#progress-timeline')?.closest('.card');
+    const agentOutputSection = document.querySelector('#agent-output')?.closest('.card');
+    const workflowBanner = document.querySelector('#workflow-banner');
+
+    if (progressTimeline) {
+      progressTimeline.style.display = 'none';
+    }
+    if (agentOutputSection) {
+      agentOutputSection.style.display = 'none';
+    }
+    // Hide D3 workflow visualization for now (will revisit later)
+    if (workflowBanner) {
+      workflowBanner.style.display = 'none';
+    }
+
+    // Add multi-agentic mode banner
+    const outputContainer = document.querySelector('#agent-output')?.closest('.container');
+    if (outputContainer) {
+      const banner = document.createElement('div');
+      banner.className = 'alert alert-success alert-dismissible fade show mb-4';
+      banner.innerHTML = `
+        <div class="d-flex align-items-center">
+          <i class="bi bi-robot fs-3 me-3"></i>
+          <div class="flex-grow-1">
+            <h5 class="alert-heading mb-1">🚀 Multi-Agentic Workflow Active</h5>
+            <p class="mb-0 small">
+              Agents are working in parallel, questioning each other, and negotiating decisions.
+              Watch the real-time conversation dashboard below.
+            </p>
+          </div>
+          <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+        </div>
+      `;
+      outputContainer.insertBefore(banner, outputContainer.firstChild);
+    }
+
+    // Step 1: Run orchestrator to determine which agents to activate
+    orchestrationPlan = await runOrchestrator(extractedData);
+
+    if (!orchestrationPlan || !orchestrationPlan.agentPlan || orchestrationPlan.agentPlan.length === 0) {
+      return { results: [], orchestrationPlan, finalEvaluation: null, conversationHistory: [] };
+    }
+
+    // Step 2: Initialize multi-agentic system
+    // Use numberOfQuestions to limit total questions, allow up to 10 rounds
+    const maxRounds = 10; // Generous round limit since we're limiting by questions
+    const messageBus = resetMessageBus(maxRounds, numberOfQuestions);
+    const dashboard = new ConversationDashboard(messageBus);
+    const hitlModal = new HITLModal(messageBus);
+
+    // Show conversation section
+    const conversationSection = document.querySelector('#conversation-section');
+    if (conversationSection) {
+      conversationSection.classList.remove('d-none');
+      setTimeout(() => {
+        conversationSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      }, 300);
+    }
+
+    // Setup workflow animations (disabled for now - focusing on dashboard)
+    // setupWorkflowMessageListeners(messageBus);
+
+    // Step 3: Create agentic agents
+    const agenticAgents = orchestrationPlan.agentPlan.map((agentName) => {
+      const agentConfig = config.agents.find((a) => a.name === agentName);
+      if (!agentConfig) {
+        console.warn(`Agent ${agentName} not found in config`);
+        return null;
+      }
+      return new AgenticAgent(agentConfig, messageBus);
+    }).filter(agent => agent !== null);
+
+    console.log(`✅ Created ${agenticAgents.length} agentic agents\n`);
+
+    // Step 4: Create conversation manager
+    const conversationManager = new ConversationManager(
+      messageBus,
+      agenticAgents,
+      extractedData
+    );
+
+    // Step 5: Run multi-round conversation
+    const conversationResult = await conversationManager.runConversation();
+
+    console.log(`\n✅ Conversation complete after ${conversationResult.rounds} rounds\n`);
+
+    // Step 6: Display orchestration plan in conversation section
+    if (conversationSection && orchestrationPlan) {
+      // Add orchestration plan card at the top
+      const planCard = document.createElement('div');
+      planCard.className = 'alert alert-info mb-3';
+      planCard.innerHTML = `
+        <div class="d-flex align-items-start">
+          <i class="bi bi-diagram-3 fs-4 me-3"></i>
+          <div class="flex-grow-1">
+            <h6 class="mb-2"><i class="bi bi-lightbulb me-2"></i>Orchestration Plan</h6>
+            <p class="mb-1 small"><strong>Scenario:</strong> ${orchestrationPlan.scenario}</p>
+            <p class="mb-1 small"><strong>Reasoning:</strong> ${orchestrationPlan.reasoning}</p>
+            <p class="mb-1 small"><strong>Agent Sequence:</strong> ${orchestrationPlan.agentPlan.join(' → ')}</p>
+            <p class="mb-0 small"><strong>Expected Outcome:</strong> ${orchestrationPlan.expectedOutcome}</p>
+          </div>
+        </div>
+      `;
+
+      // Insert before conversation feed
+      const conversationFeed = document.querySelector('#conversation-feed');
+      if (conversationFeed && conversationFeed.parentNode) {
+        conversationFeed.parentNode.insertBefore(planCard, conversationFeed);
+      }
+    }
+
+    // Step 7: Return results
+    return {
+      results: conversationResult.conversationHistory,
+      orchestrationPlan,
+      finalEvaluation: conversationResult.finalDecision,
+      conversationHistory: conversationResult.conversationHistory,
+      conversationRounds: conversationResult.rounds,
+      analytics: conversationResult.analytics
+    };
+  } catch (e) {
+    console.error("Multi-agentic workflow error:", e);
+    throw e;
+  }
+}
+
+// Process agent workflow (ORIGINAL - Sequential)
 export async function processAgentWorkflow(extractedData) {
   const results = [];
   agentOutputs = [];

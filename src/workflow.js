@@ -311,4 +311,191 @@ function animateDataFlow(agentName) {
     .on("end", function() { d3.select(this).remove(); });
 }
 
+/**
+ * Animate message flow between agents
+ * Shows a particle flying from source to target agent
+ */
+export function animateMessageFlow(fromAgent, toAgent, messageType = 'question', duration = 1000) {
+  if (!workflowViz) {
+    console.warn('workflowViz not initialized');
+    return;
+  }
+
+  const { svg, nodes } = workflowViz;
+  if (!svg || svg.empty()) return;
+
+  // Find source and target nodes
+  const sourceNode = nodes.find(n => n.id === fromAgent);
+  const targetNode = toAgent === 'all' ? null : nodes.find(n => n.id === toAgent);
+
+  if (!sourceNode) {
+    console.warn(`Source agent not found: ${fromAgent}`);
+    return;
+  }
+
+  // Handle broadcast (to all agents)
+  if (toAgent === 'all' || (Array.isArray(toAgent) && toAgent.includes('all'))) {
+    animateBroadcastWave(fromAgent);
+    return;
+  }
+
+  if (!targetNode) {
+    console.warn(`Target agent not found: ${toAgent}`);
+    return;
+  }
+
+  // Create curved path
+  const sx = sourceNode.x;
+  const sy = sourceNode.y + 40; // Start from bottom of source node
+  const tx = targetNode.x;
+  const ty = targetNode.y - 40; // End at top of target node
+
+  // Control point for curve (arc upward)
+  const midX = (sx + tx) / 2;
+  const midY = (sy + ty) / 2 - 80;
+
+  const pathString = `M ${sx} ${sy} Q ${midX} ${midY} ${tx} ${ty}`;
+
+  // Draw path temporarily
+  const path = svg.append('path')
+    .attr('d', pathString)
+    .attr('stroke', getMessageColor(messageType))
+    .attr('stroke-width', 3)
+    .attr('fill', 'none')
+    .attr('opacity', 0.6)
+    .attr('stroke-dasharray', '5,5');
+
+  // Animate particle along path
+  const particle = svg.append('circle')
+    .attr('r', 8)
+    .attr('cx', sx)
+    .attr('cy', sy)
+    .attr('fill', getMessageColor(messageType))
+    .attr('class', `message-particle ${messageType}`)
+    .style('filter', `drop-shadow(0 0 6px ${getMessageColor(messageType)})`);
+
+  const pathLength = path.node().getTotalLength();
+
+  particle
+    .transition()
+    .duration(duration)
+    .ease(d3.easeCubicInOut)
+    .attrTween('transform', function() {
+      return function(t) {
+        const point = path.node().getPointAtLength(t * pathLength);
+        return `translate(${point.x - sx}, ${point.y - sy})`;
+      };
+    })
+    .on('end', function() {
+      d3.select(this).remove();
+      path.transition().duration(500).attr('opacity', 0).remove();
+
+      // Target node "receives" message - flash effect
+      const targetNodeGroup = svg.selectAll('.agent-node')
+        .filter(d => d.id === toAgent);
+
+      targetNodeGroup
+        .append('circle')
+        .attr('r', 0)
+        .attr('fill', getMessageColor(messageType))
+        .attr('opacity', 0.6)
+        .transition()
+        .duration(500)
+        .attr('r', 60)
+        .attr('opacity', 0)
+        .remove();
+    });
+}
+
+/**
+ * Animate broadcast wave from agent
+ * Shows expanding circle wave to all agents
+ */
+export function animateBroadcastWave(fromAgent, urgency = 'high') {
+  if (!workflowViz) return;
+
+  const { svg, nodes } = workflowViz;
+  if (!svg || svg.empty()) return;
+
+  const sourceNode = nodes.find(n => n.id === fromAgent);
+  if (!sourceNode) return;
+
+  // Source node glows
+  const sourceNodeGroup = svg.selectAll('.agent-node')
+    .filter(d => d.id === fromAgent);
+
+  sourceNodeGroup.classed('broadcasting', true);
+
+  // Create expanding circle (shock wave)
+  const wave = svg.append('circle')
+    .attr('cx', sourceNode.x)
+    .attr('cy', sourceNode.y)
+    .attr('r', 60)
+    .attr('fill', 'none')
+    .attr('stroke', urgency === 'high' ? '#dc3545' : '#ffc107')
+    .attr('stroke-width', 4)
+    .attr('opacity', 0.8);
+
+  wave
+    .transition()
+    .duration(1500)
+    .ease(d3.easeCircleOut)
+    .attr('r', 500)
+    .attr('stroke-width', 1)
+    .attr('opacity', 0)
+    .on('end', function() {
+      d3.select(this).remove();
+      sourceNodeGroup.classed('broadcasting', false);
+    });
+
+  // Flash all other agent nodes
+  svg.selectAll('.agent-node')
+    .filter(d => d.id !== fromAgent && d.type === 'agent')
+    .each(function(d) {
+      const node = d3.select(this);
+
+      node.append('circle')
+        .attr('r', 50)
+        .attr('fill', '#198754')
+        .attr('opacity', 0.5)
+        .transition()
+        .duration(400)
+        .delay(Math.random() * 500) // Random delay for each agent
+        .attr('r', 70)
+        .attr('opacity', 0)
+        .remove();
+    });
+}
+
+/**
+ * Get message color based on message type
+ */
+function getMessageColor(messageType) {
+  const colors = {
+    'question': '#0d6efd',      // Blue
+    'answer': '#198754',        // Green
+    'challenge': '#ffc107',     // Yellow
+    'broadcast': '#dc3545',     // Red
+    'escalate_human': '#6c757d' // Gray
+  };
+  return colors[messageType] || '#0d6efd';
+}
+
+/**
+ * Setup message bus listeners for workflow animations
+ */
+export function setupWorkflowMessageListeners(messageBus) {
+  if (!messageBus) return;
+
+  // Message routing animation
+  messageBus.on('message-routing', (data) => {
+    animateMessageFlow(data.from, data.to, data.type, data.duration);
+  });
+
+  // Broadcast animation
+  messageBus.on('broadcast-signal', (data) => {
+    animateBroadcastWave(data.from, data.urgency);
+  });
+}
+
 export { workflowViz };

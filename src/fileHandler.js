@@ -87,12 +87,18 @@ export async function previewFile(file) {
 
     // Render based on preview type
     if (result.type === 'pdf') {
+      // First render the container
       render(html`
         <div>
           <p class="text-muted mb-2">PDF Preview (Page 1 of ${result.numPages})</p>
-          ${unsafeHTML(result.canvas.outerHTML)}
+          <div id="pdf-canvas-container"></div>
         </div>
       `, preview);
+      // Then append the canvas directly (canvas elements don't work well with unsafeHTML)
+      const canvasContainer = preview.querySelector('#pdf-canvas-container');
+      if (canvasContainer) {
+        canvasContainer.appendChild(result.canvas);
+      }
     } else if (result.type === 'excel') {
       render(html`
         <div>
@@ -107,6 +113,15 @@ export async function previewFile(file) {
         <div class="alert alert-info">
           <i class="bi bi-info-circle me-2"></i>Word document preview: ${result.name}
           <br><small>Text extraction will be performed during processing.</small>
+        </div>
+      `, preview);
+    } else if (result.type === 'text') {
+      render(html`
+        <div>
+          <p class="text-muted mb-2">Text File Preview: ${result.name}</p>
+          <div class="border rounded p-3" style="max-height: 500px; overflow-y: auto; background-color: #f8f9fa; font-family: monospace; white-space: pre-wrap; font-size: 0.875rem;">
+${result.content}
+          </div>
         </div>
       `, preview);
     }

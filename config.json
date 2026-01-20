@@ -15,49 +15,49 @@
       "name": "VendorIntakeAgent",
       "stage": "Stage 1",
       "icon": "bi bi-building",
-      "description": "Vendor onboarding and registration",
-      "role": "Process new vendor applications, extract company information, validate registration details, and create vendor profiles in the system.",
-      "task": "Extract vendor details including company name, registration numbers (PAN, GST, Tax ID), contact information, banking details, and business classifications. Validate format and completeness of submitted documents. IMPORTANT: Return a 'status' field with value 'APPROVED' or 'ISSUES_FOUND' to indicate if vendor data is complete and valid."
+      "description": "Vendor onboarding and registration with intelligent routing",
+      "role": "Process new vendor applications, extract company information, validate registration details, and create vendor profiles in the system. **PARALLEL ROUTING**: When compliance gaps detected, route SIMULTANEOUSLY to RiskGuard (for assessment) AND forward any invoices to InvoiceIQ (don't wait in serial).",
+      "task": "Extract vendor details including company name, registration numbers (PAN, GST, Tax ID), contact information, banking details, and business classifications. Validate format and completeness of submitted documents. **INTELLIGENT ROUTING**:\n\n1. Check for missing documents (insurance, licenses, etc.)\n2. If compliance gap found → Route to RiskGuard for assessment\n3. If invoice included → Forward to InvoiceIQ (parallel, not serial)\n4. Create vendor profile with compliance flags\n5. Ask RiskGuard about appropriate risk level and tolerance\n\n**KEY**: You initiate PARALLEL processing, not serial conveyor belt. Multiple agents can start working simultaneously.\n\nIMPORTANT: Return a 'status' field with value 'APPROVED' or 'ISSUES_FOUND' to indicate if vendor data is complete and valid. Return 'complianceGaps' array listing missing documents. Return 'routingDecision' showing which agents should be notified."
     },
     {
       "name": "RiskGuardAgent",
       "stage": "Stage 2",
       "icon": "bi bi-shield-check",
       "description": "Risk assessment and compliance validation",
-      "role": "Evaluate vendor risk profiles based on financial stability, compliance history, industry risks, and geographic factors. Assign risk bands (LOW/MEDIUM/HIGH) and recommend risk mitigation strategies.",
-      "task": "Analyze vendor data to assess financial risk, compliance risk, operational risk, and reputational risk. Calculate risk scores for quality, delivery, and compliance. Provide risk band classification and monitoring recommendations. IMPORTANT: Return a 'riskBand' field with value 'LOW', 'MEDIUM', or 'HIGH' to indicate the risk level. Also return 'status' field with 'APPROVED' (for LOW/MEDIUM risk) or 'HIGH_RISK' (for HIGH risk)."
+      "role": "Evaluate vendor risk profiles based on financial stability, compliance history, industry risks, and geographic factors. Assign risk bands (LOW/MEDIUM/HIGH) and recommend risk mitigation strategies. ENFORCE company policies including variance tolerance thresholds.",
+      "task": "Analyze vendor data to assess financial risk, compliance risk, operational risk, and reputational risk. Calculate risk scores for quality, delivery, and compliance. Provide risk band classification and monitoring recommendations. **POLICY ENFORCEMENT**: Standard variance tolerance is 10%, but if vendor has compliance gaps (missing insurance, missing docs), apply ENHANCED REVIEW with 5% tolerance. When invoice variance exceeds tolerance, you MUST challenge the amount and escalate to CFO. IMPORTANT: Return a 'riskBand' field with value 'LOW', 'MEDIUM', or 'HIGH' to indicate the risk level. Also return 'status' field with 'APPROVED' (for LOW/MEDIUM risk) or 'HIGH_RISK' (for HIGH risk). Return 'varianceTolerance' field showing applied threshold (5% or 10%)."
     },
     {
       "name": "ContractCraftAgent",
       "stage": "Stage 3",
       "icon": "bi bi-file-text",
       "description": "Contract generation and negotiation",
-      "role": "Generate Master Service Agreements (MSAs) tailored to vendor risk profiles, industry standards, and company policies. Flag risky clauses and suggest negotiation points. Can also validate invoices against existing contract terms when invoice documents are provided.",
-      "task": "CONTEXT-AWARE TASKS:\n\n1. If previous agents include VendorIntakeAgent or RiskGuardAgent (vendor onboarding scenario):\n   - Generate contract templates with appropriate terms, payment conditions, delivery schedules, and compliance requirements\n   - Identify and highlight any risky or non-standard clauses in vendor-submitted contracts\n   - Return 'status' field with 'APPROVED' or 'RISKY_CLAUSES_FOUND'\n\n2. If invoice documents are present in uploaded files (invoice processing scenario):\n   - Validate invoice details against existing contract terms\n   - Check amounts, payment terms, deliverables match contract\n   - Return 'contractMatch' field with 'MATCHED' or 'DISCREPANCY_FOUND'\n\n3. If ONLY contract documents are present (contract review scenario):\n   - Review contract terms for completeness and risks\n   - Flag any non-standard or concerning clauses\n   - Return 'status' field with review results\n\nIMPORTANT: Check the context and uploaded files. Do NOT attempt invoice validation if no invoice is present. Focus on the task that matches the scenario."
+      "role": "Generate Master Service Agreements (MSAs) tailored to vendor risk profiles, industry standards, and company policies. Flag risky clauses and suggest negotiation points. Can also validate invoices against existing contract terms when invoice documents are provided. CRITICAL: Check for rate variances and verify if change orders exist.",
+      "task": "CONTEXT-AWARE TASKS:\n\n1. If previous agents include VendorIntakeAgent or RiskGuardAgent (vendor onboarding scenario):\n   - Generate contract templates with appropriate terms, payment conditions, delivery schedules, and compliance requirements\n   - Identify and highlight any risky or non-standard clauses in vendor-submitted contracts\n   - Return 'status' field with 'APPROVED' or 'RISKY_CLAUSES_FOUND'\n\n2. If invoice documents are present in uploaded files (invoice processing scenario):\n   - **CRITICAL**: Validate invoice rates against contract rates line-by-line\n   - Calculate percentage variance for each line item (variance = (invoice_rate - contract_rate) / contract_rate * 100)\n   - Search for any amendments, change orders, or rate adjustments\n   - If variance found, you MUST ask InvoiceIQ to verify if it's a data error or real commercial variance\n   - Return 'contractMatch' field with 'MATCHED' or 'DISCREPANCY_FOUND'\n   - Return 'variancePercentage' field showing calculated variance\n   - Return 'amendmentsFound' field (true/false) indicating if change orders exist\n\n3. If ONLY contract documents are present (contract review scenario):\n   - Review contract terms for completeness and risks\n   - Flag any non-standard or concerning clauses\n   - Return 'status' field with review results\n\nIMPORTANT: Check the context and uploaded files. Do NOT attempt invoice validation if no invoice is present. Focus on the task that matches the scenario. When variance is detected, be proactive in questioning InvoiceIQ and RiskGuard."
     },
     {
       "name": "InvoiceIQAgent",
       "stage": "Stage 4",
       "icon": "bi bi-receipt",
       "description": "Invoice processing and validation",
-      "role": "Extract invoice data from digital and scanned documents, validate against purchase orders and goods receipts, verify tax calculations (CGST/SGST), and flag discrepancies.",
-      "task": "Process invoice documents to extract invoice number, date, vendor details, line items, amounts, and tax breakdowns. Match with PO/GR data and contract terms (from ContractCraftAgent results), validate calculations, and categorize invoice status. IMPORTANT: Return 'invoiceStatus' field with 'APPROVED', 'PENDING', or 'REJECTED' and 'status' field with 'APPROVED' or 'DISCREPANCIES_FOUND'."
+      "role": "Extract invoice data from digital and scanned documents, validate against purchase orders and goods receipts, verify tax calculations (CGST/SGST), and flag discrepancies. When questioned by other agents, RE-VERIFY your extraction to confirm accuracy.",
+      "task": "Process invoice documents to extract invoice number, date, vendor details, line items, amounts, and tax breakdowns. Match with PO/GR data and contract terms (from ContractCraftAgent results), validate calculations, and categorize invoice status. **CRITICAL**: When ContractCraft or RiskGuard questions your extracted amounts, you MUST:\n1. Re-extract the data to verify OCR accuracy\n2. Compare invoice rate vs contract rate\n3. Classify as 'DATA_ERROR' (OCR mistake) or 'COMMERCIAL_VARIANCE' (real difference)\n4. If commercial variance, send to RiskGuard for policy decision\n5. Include confidence score in your extraction (low confidence = potential OCR issues)\n\nIMPORTANT: Return 'invoiceStatus' field with 'APPROVED', 'PENDING', or 'REJECTED' and 'status' field with 'APPROVED' or 'DISCREPANCIES_FOUND'. Return 'extractionConfidence' score (0-100) and 'varianceClassification' ('DATA_ERROR' or 'COMMERCIAL_VARIANCE' or 'NONE')."
     },
     {
       "name": "PayFlowAgent",
       "stage": "Stage 5",
       "icon": "bi bi-cash-coin",
       "description": "Payment execution and reconciliation",
-      "role": "Schedule payments based on approved invoices, payment terms, and cash flow optimization. Generate payment instructions and track payment status.",
-      "task": "Process approved invoices for payment execution. Calculate payment dates based on terms (Net 30/45/60), prepare payment batches, and generate payment receipts. Track payment status and reconcile with bank statements. IMPORTANT: Return 'paymentStatus' field with 'SCHEDULED', 'PROCESSED', or 'FAILED' and 'status' field indicating success or issues."
+      "role": "Schedule payments based on approved invoices, payment terms, and cash flow optimization. Generate payment instructions and track payment status. **POLICY GATE**: DO NOT process payments that violate risk tolerance or have compliance gaps.",
+      "task": "Process approved invoices for payment execution. Calculate payment dates based on terms (Net 30/45/60), prepare payment batches, and generate payment receipts. Track payment status and reconcile with bank statements. **CRITICAL POLICY ENFORCEMENT**:\n\n1. Check if RiskGuard has flagged any policy violations\n2. If variance exceeds tolerance (5% for enhanced review, 10% standard), HOLD payment\n3. If compliance gaps exist (missing insurance, missing docs), HOLD payment\n4. Prepare exception package for human approval (CFO/Manager)\n5. Only process payment after human approval received\n\n**ESCALATION REQUIRED FOR**:\n- Variance > tolerance threshold\n- Missing compliance documents\n- Risk level = HIGH\n- Any BLOCK decision from RiskGuard\n\nIMPORTANT: Return 'paymentStatus' field with 'SCHEDULED', 'HELD_FOR_APPROVAL', 'PROCESSED', or 'BLOCKED' and 'status' field indicating success or issues. Return 'escalationRequired' (true/false) and 'blockReason' if payment is held."
     },
     {
       "name": "Supplier360Agent",
       "stage": "Stage 6",
       "icon": "bi bi-graph-up-arrow",
-      "description": "Supplier performance analytics",
-      "role": "Analyze supplier performance metrics including on-time payment rates, dispute rates, cycle times, quality scores, and delivery performance. Generate actionable insights and renewal recommendations.",
-      "task": "Aggregate data across all stages to calculate supplier KPIs: total invoices processed, amounts paid, payment performance, dispute rates, average cycle times, and quality/delivery/compliance scores. Provide trend analysis (IMPROVING/STABLE/DECLINING) and recommendations (RENEW/MONITOR/RETENDER). Return performance summary and renewal recommendation."
+      "description": "Supplier performance analytics and learning loop",
+      "role": "Analyze supplier performance metrics including on-time payment rates, dispute rates, cycle times, quality scores, and delivery performance. Generate actionable insights and renewal recommendations. **LEARNING LOOP**: Update vendor KPIs and feed insights back to RiskGuard and VendorIntake for future transactions.",
+      "task": "Aggregate data across all stages to calculate supplier KPIs: total invoices processed, amounts paid, payment performance, dispute rates, average cycle times, and quality/delivery/compliance scores. Provide trend analysis (IMPROVING/STABLE/DECLINING) and recommendations (RENEW/MONITOR/RETENDER). **LEARNING LOOP ACTIVITIES**:\n\n1. Mark variance events in vendor history\n2. Update compliance flags (missing insurance, etc.)\n3. Calculate variance rate (# of variances / total invoices)\n4. Recommend threshold adjustments for next cycle\n5. Flag vendors for enhanced monitoring\n6. Feed learning back to RiskGuard (adjust tolerance?)\n7. Feed learning back to VendorIntake (routing changes?)\n\n**FOR FIRST VARIANCE EVENT**: Recommend 'MONITOR' not 'RETENDER' - give vendor chance to improve. **FOR REPEAT VARIANCES**: Escalate concern level.\n\nReturn performance summary, renewal recommendation, and 'learningInsights' object with threshold recommendations and monitoring suggestions."
     }
   ],
   "demos": [
@@ -117,6 +117,17 @@
         "data/kyc_samples/VENDOR-0004_KYC.pdf",
         "data/invoices_pdf/INV-0003_digital.pdf",
         "data/supplier_history.csv"
+      ]
+    },
+    {
+      "title": "Invoice Variance & Compliance Gap",
+      "icon": "bi bi-exclamation-diamond",
+      "description": "Invoice with 8% rate variance and missing insurance certificate - agents negotiate variance policy, challenge findings, and escalate to CFO when tolerance exceeded",
+      "numberOfQuestions": 12,
+      "files": [
+        "data/invoices_pdf/INV-4589_Invoice.pdf",
+        "data/contracts/VENDOR-0004_MSA_signed.pdf",
+        "data/kyc_samples/VENDOR-0004_Profile.pdf"
       ]
     }
   ]

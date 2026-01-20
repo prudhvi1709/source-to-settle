@@ -167,9 +167,27 @@ function renderAgentData(data) {
 
 // Render final verdict
 function renderFinalVerdict(evaluation) {
-  const isApproved = evaluation.verdict === "APPROVE";
-  const verdictColor = isApproved ? "success" : "danger";
-  const verdictIcon = isApproved ? "bi-check-circle-fill" : "bi-x-circle-fill";
+  // Handle different verdict values
+  const verdict = evaluation.verdict || 'UNKNOWN';
+  const isApproved = verdict === "APPROVED" || verdict === "APPROVE";
+  const isEscalated = verdict === "ESCALATED_TO_HUMAN";
+  const isReview = verdict === "REVIEW_REQUIRED";
+
+  // Determine color and icon based on verdict
+  let verdictColor, verdictIcon;
+  if (isApproved) {
+    verdictColor = "success";
+    verdictIcon = "bi-check-circle-fill";
+  } else if (isEscalated) {
+    verdictColor = "warning";
+    verdictIcon = "bi-exclamation-triangle-fill";
+  } else if (isReview) {
+    verdictColor = "info";
+    verdictIcon = "bi-eye-fill";
+  } else {
+    verdictColor = "danger";
+    verdictIcon = "bi-x-circle-fill";
+  }
 
   let confidenceLevel = "Low", confidenceColor = "danger";
   if (evaluation.confidenceScore >= 80) { confidenceLevel = "High"; confidenceColor = "success"; }
@@ -216,7 +234,22 @@ function renderFinalVerdict(evaluation) {
       ${evaluation.recommendations?.length > 0 ? html`
         <div class="card border-success">
           <div class="card-header bg-success text-white"><i class="bi bi-arrow-right-circle-fill me-2"></i><strong>Final Recommendations</strong></div>
-          <div class="card-body"><ul class="mb-0">${evaluation.recommendations.map(r => html`<li>${r}</li>`)}</ul></div>
+          <div class="card-body">
+            <ul class="mb-0">
+              ${evaluation.recommendations.map(r => {
+                // Handle both string recommendations and object recommendations
+                if (typeof r === 'string') {
+                  return html`<li>${r}</li>`;
+                } else if (typeof r === 'object' && r !== null) {
+                  // Extract content from recommendation object
+                  const from = r.from ? html`<strong>${r.from}:</strong> ` : '';
+                  const content = r.content || JSON.stringify(r);
+                  return html`<li>${from}${content}</li>`;
+                }
+                return html`<li>${String(r)}</li>`;
+              })}
+            </ul>
+          </div>
         </div>
       ` : ''}
     </div>
@@ -344,25 +377,27 @@ export function displayResults(results, plan = null, finalEvaluation = null) {
           </div>
         </div>
       ` : ''}
-      <h4 class="mt-5 mb-3"><i class="bi bi-person-workspace me-2"></i>Detailed Agent Reports</h4>
-      <div class="row g-4">
-        ${results.map(result => html`
-          <div class="col-md-6">
-            <div class="card h-100">
-              <div class="card-header bg-primary text-white">
-                <i class="bi bi-check-circle me-2"></i>${result.agent}
-                <span class="badge bg-white text-primary ms-2">${result.stage}</span>
-              </div>
-              <div class="card-body">
-                ${result.summary ? html`<div class="mb-3"><strong>Summary:</strong><br>${unsafeHTML(marked.parse(result.summary))}</div>` : ""}
-                ${result.findings ? html`<details class="mb-3"><summary><strong>Findings</strong></summary>${unsafeHTML(marked.parse(result.findings))}</details>` : ""}
-                ${result.recommendations ? html`<details class="mb-3"><summary><strong>Recommendations</strong></summary>${unsafeHTML(marked.parse(result.recommendations))}</details>` : ""}
-                ${result.concerns ? html`<div class="alert alert-warning mb-0"><strong>Concerns:</strong><br>${unsafeHTML(marked.parse(result.concerns))}</div>` : ""}
+      ${results && results.length > 0 && results[0]?.agent ? html`
+        <h4 class="mt-5 mb-3"><i class="bi bi-person-workspace me-2"></i>Detailed Agent Reports</h4>
+        <div class="row g-4">
+          ${results.map(result => html`
+            <div class="col-md-6">
+              <div class="card h-100">
+                <div class="card-header bg-primary text-white">
+                  <i class="bi bi-check-circle me-2"></i>${result.agent}
+                  <span class="badge bg-white text-primary ms-2">${result.stage}</span>
+                </div>
+                <div class="card-body">
+                  ${result.summary ? html`<div class="mb-3"><strong>Summary:</strong><br>${unsafeHTML(marked.parse(result.summary))}</div>` : ""}
+                  ${result.findings ? html`<details class="mb-3"><summary><strong>Findings</strong></summary>${unsafeHTML(marked.parse(result.findings))}</details>` : ""}
+                  ${result.recommendations ? html`<details class="mb-3"><summary><strong>Recommendations</strong></summary>${unsafeHTML(marked.parse(result.recommendations))}</details>` : ""}
+                  ${result.concerns ? html`<div class="alert alert-warning mb-0"><strong>Concerns:</strong><br>${unsafeHTML(marked.parse(result.concerns))}</div>` : ""}
+                </div>
               </div>
             </div>
-          </div>
-        `)}
-      </div>
+          `)}
+        </div>
+      ` : ''}
     `,
     resultsDiv
   );

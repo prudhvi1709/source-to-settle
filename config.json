@@ -124,9 +124,9 @@
       "icon": "bi bi-exclamation-diamond",
       "description": "Invoice with 8% rate variance and missing insurance certificate - agents negotiate variance policy, challenge findings, and escalate to CFO when tolerance exceeded",
       "files": [
-        "data/invoices_pdf/INV-4589_variance_scenario.txt",
-        "data/contracts/VENDOR-0004_MSA_signed.txt",
-        "data/kyc_samples/VENDOR-0004_profile.txt"
+        "data/invoices_pdf/INV-4589_Invoice.pdf",
+        "data/contracts/VENDOR-0004_MSA_signed.pdf",
+        "data/kyc_samples/VENDOR-0004_Profile.pdf"
       ]
     }
   ]

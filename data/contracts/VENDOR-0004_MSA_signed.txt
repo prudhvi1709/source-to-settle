@@ -1,0 +1,107 @@
+=======================================
+   MASTER SERVICE AGREEMENT (MSA)
+=======================================
+
+Contract ID: MSA-VENDOR-0004-2025
+Effective Date: January 1, 2025
+Contract Term: 12 months (January 1, 2025 - December 31, 2025)
+Auto-Renewal: Yes, unless terminated with 60 days notice
+
+---------------------------------------
+PARTIES:
+---------------------------------------
+
+SERVICE PROVIDER (Vendor):
+TechFlow Solutions Inc.
+Vendor ID: VENDOR-0004
+1234 Industrial Parkway
+San Francisco, CA 94102
+Tax ID: 94-1234567
+
+CLIENT (Buyer):
+Enterprise Corp
+500 Business Plaza
+New York, NY 10001
+
+---------------------------------------
+SERVICES & RATES:
+---------------------------------------
+
+1. Professional Consulting Services
+   Rate: $100.00 per hour
+   Description: Technical consulting, software development,
+                system architecture design
+
+2. Technical Support Services
+   Rate: $95.00 per hour
+   Description: Troubleshooting, bug fixes, maintenance
+
+3. Project Management
+   Rate: $120.00 per hour
+   Description: Project planning, coordination, reporting
+
+---------------------------------------
+PAYMENT TERMS:
+---------------------------------------
+
+- Payment Terms: Net 30 days from invoice date
+- Invoice Frequency: Monthly in arrears
+- Late Payment: 1.5% per month on overdue amounts
+- Variance Tolerance: 5% maximum variance allowed
+  (Amounts exceeding 5% variance require CFO approval)
+
+---------------------------------------
+COMPLIANCE REQUIREMENTS:
+---------------------------------------
+
+REQUIRED DOCUMENTS:
+[X] W-9 Tax Form - Received
+[X] Certificate of Insurance - **MISSING - PENDING**
+[X] Business License - Received
+[X] OFAC/Sanctions Screening - CLEARED
+
+INSURANCE REQUIREMENTS:
+- General Liability: $2,000,000
+- Professional Liability: $1,000,000
+- Cyber Liability: $500,000
+
+**NOTE: Insurance certificate was due by January 1, 2025**
+**COMPLIANCE GAP: Certificate not received as of contract date**
+
+---------------------------------------
+TERMINATION CLAUSE:
+---------------------------------------
+
+Either party may terminate with 60 days written notice.
+Immediate termination allowed for:
+- Material breach of contract
+- Failure to maintain required insurance
+- Policy violations exceeding tolerance thresholds
+
+---------------------------------------
+RISK LEVEL:
+---------------------------------------
+
+Initial Risk Assessment: MEDIUM
+Enhanced Review Required: YES (due to missing insurance)
+
+---------------------------------------
+SIGNATURES:
+---------------------------------------
+
+TechFlow Solutions Inc.
+Signature: [Signed]
+Name: John Smith, CEO
+Date: December 15, 2024
+
+Enterprise Corp
+Signature: [Signed]
+Name: Sarah Johnson, Procurement Director
+Date: December 15, 2024
+
+---------------------------------------
+CONTRACT AMENDMENTS:
+---------------------------------------
+
+No amendments or change orders have been issued for this contract.
+Any rate changes require written approval from both parties.

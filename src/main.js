@@ -5,9 +5,10 @@ import { html, render } from "lit-html";
 import saveform from "saveform";
 import { config } from "./config.js";
 import { setupFileHandlers, getUploadedFiles, loadSampleFiles, extractText } from "./fileHandler.js";
-import { initWorkflowViz, activateWorkflowPath } from "./workflow.js";
+// Workflow visualization imports (disabled for now - focusing on dashboard)
+// import { initWorkflowViz, activateWorkflowPath } from "./workflow.js";
 import { renderTimeline, displayResults, toggleAllAgents } from "./ui.js";
-import { processAgentWorkflow } from "./agent.js";
+import { processMultiAgenticWorkflow } from "./agent.js";
 
 // Helpers
 const $ = (selector) => document.querySelector(selector);
@@ -40,11 +41,12 @@ if (workflowToggleBtn) {
     if (!isExpanded) {
       setTimeout(() => {
         if (window.workflowViz) {
-          initWorkflowViz();
-          const orchestrationPlan = window.orchestrationPlan;
-          if (orchestrationPlan?.agentPlan) {
-            activateWorkflowPath(orchestrationPlan.agentPlan);
-          }
+          // Workflow visualization disabled for now
+          // initWorkflowViz();
+          // const orchestrationPlan = window.orchestrationPlan;
+          // if (orchestrationPlan?.agentPlan) {
+          //   activateWorkflowPath(orchestrationPlan.agentPlan);
+          // }
         }
       }, 350);
     }
@@ -60,19 +62,20 @@ if (workflowBannerHeader) {
   });
 }
 
-// Show/hide workflow banner
+// Show/hide workflow banner (disabled for now - focusing on dashboard)
 function showWorkflowBanner() {
-  if (workflowBanner) {
-    workflowBanner.classList.remove("d-none");
-    if (!window.workflowViz) {
-      initWorkflowViz();
-    }
-    setTimeout(() => {
-      if (workflowToggleBtn && workflowToggleBtn.getAttribute("aria-expanded") !== "true") {
-        workflowToggleBtn.click();
-      }
-    }, 300);
-  }
+  // Workflow visualization disabled
+  // if (workflowBanner) {
+  //   workflowBanner.classList.remove("d-none");
+  //   if (!window.workflowViz) {
+  //     initWorkflowViz();
+  //   }
+  //   setTimeout(() => {
+  //     if (workflowToggleBtn && workflowToggleBtn.getAttribute("aria-expanded") !== "true") {
+  //       workflowToggleBtn.click();
+  //     }
+  //   }, 300);
+  // }
 }
 
 // Render demo cards
@@ -199,15 +202,20 @@ async function processDocuments() {
     }
   }
 
-  // Process through agent workflow
+  // Process through multi-agentic workflow
   try {
-    const { results, orchestrationPlan, finalEvaluation } = await processAgentWorkflow(extractedData);
+    console.log('🚀 Starting Multi-Agentic Workflow');
+
+    const { results, orchestrationPlan, finalEvaluation, conversationHistory, conversationRounds } =
+      await processMultiAgenticWorkflow(extractedData);
 
     // Store for potential workflow banner re-render
     window.orchestrationPlan = orchestrationPlan;
 
     // Display results
     displayResults(results, orchestrationPlan, finalEvaluation);
+
+    console.log(`✅ Completed ${conversationRounds} rounds of agent conversation`);
   } catch (e) {
     console.error("Processing error:", e);
     bootstrapAlert({ color: "danger", title: "Processing Error", body: e.message });

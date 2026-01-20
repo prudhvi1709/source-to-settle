@@ -1,0 +1,67 @@
+=======================================
+           INVOICE
+=======================================
+
+Invoice Number: INV-4589
+Invoice Date: January 15, 2026
+Due Date: February 14, 2026
+Payment Terms: Net 30
+
+---------------------------------------
+BILL FROM (Vendor):
+---------------------------------------
+TechFlow Solutions Inc.
+Vendor ID: VENDOR-0004
+1234 Industrial Parkway
+San Francisco, CA 94102
+Tax ID: 94-1234567
+GST/VAT: US-VAT-123456
+
+---------------------------------------
+BILL TO (Buyer):
+---------------------------------------
+Enterprise Corp
+500 Business Plaza
+New York, NY 10001
+
+---------------------------------------
+DESCRIPTION OF SERVICES/GOODS:
+---------------------------------------
+
+Item Description            Quantity    Unit Price    Amount
+------------------------------------------------------------
+Professional Consulting      100 hours   $108.00      $10,800.00
+Services - Q4 2025
+
+Technical Support Services    20 hours    $95.00       $1,900.00
+
+Project Management             8 hours   $120.00         $960.00
+------------------------------------------------------------
+
+                              Subtotal:              $13,660.00
+                              Tax (8.5%):            $ 1,161.10
+                              TOTAL DUE:             $14,821.10
+
+---------------------------------------
+PAYMENT INSTRUCTIONS:
+---------------------------------------
+Wire Transfer to:
+Bank: First National Bank
+Account: 987654321
+Routing: 123456789
+SWIFT: FNBUS123
+
+---------------------------------------
+NOTES:
+---------------------------------------
+Payment due within 30 days of invoice date.
+Late fees of 1.5% per month apply after due date.
+
+Services rendered per Master Service Agreement
+Contract ID: MSA-VENDOR-0004-2025
+Billing Period: October 1 - December 31, 2025
+
+---------------------------------------
+APPROVED BY:
+John Smith, Project Director
+TechFlow Solutions Inc.

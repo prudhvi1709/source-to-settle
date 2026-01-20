@@ -1,0 +1,146 @@
+=======================================
+       VENDOR PROFILE & KYC DATA
+=======================================
+
+Vendor ID: VENDOR-0004
+Company Name: TechFlow Solutions Inc.
+Status: ACTIVE (with compliance gap)
+Onboarding Date: December 15, 2024
+
+---------------------------------------
+COMPANY INFORMATION:
+---------------------------------------
+
+Legal Name: TechFlow Solutions Incorporated
+DBA: TechFlow
+Business Type: C-Corporation
+Industry: Technology Services / Software Consulting
+NAICS Code: 541512 (Computer Systems Design)
+
+Registration Details:
+- State of Incorporation: Delaware
+- Business Registration #: DE-2018-567890
+- Tax ID (EIN): 94-1234567
+- DUNS Number: 12-345-6789
+
+---------------------------------------
+CONTACT INFORMATION:
+---------------------------------------
+
+Primary Address:
+1234 Industrial Parkway, Suite 500
+San Francisco, CA 94102
+United States
+
+Phone: +1 (415) 555-0123
+Email: billing@techflow-solutions.com
+Website: www.techflow-solutions.com
+
+Primary Contact:
+Name: John Smith
+Title: CEO & Co-Founder
+Email: jsmith@techflow-solutions.com
+Phone: +1 (415) 555-0124
+
+---------------------------------------
+FINANCIAL INFORMATION:
+---------------------------------------
+
+Annual Revenue (2024): $5.2M
+Employees: 45
+Years in Business: 6
+Credit Rating: B+ (Good)
+Payment History: Excellent (no late payments)
+
+Banking Details:
+Bank Name: First National Bank
+Account Number: 987654321
+Routing Number: 123456789
+SWIFT Code: FNBUS123
+
+---------------------------------------
+COMPLIANCE STATUS:
+---------------------------------------
+
+OFAC/Sanctions Screening:
+Status: CLEARED
+Last Screened: January 10, 2026
+Next Review: April 10, 2026
+
+KYC Documentation:
+[X] W-9 Tax Form - Received & Verified
+[X] Business License - Received & Valid
+[X] Articles of Incorporation - Received
+[X] Board Resolution - Received
+[!] Certificate of Insurance - **MISSING**
+    - Required: General Liability $2M
+    - Required: Professional Liability $1M
+    - Required: Cyber Liability $500K
+    - Due Date: January 1, 2025
+    - Status: OVERDUE by 14 days
+
+---------------------------------------
+RISK ASSESSMENT:
+---------------------------------------
+
+Overall Risk Band: MEDIUM (upgraded from LOW due to missing insurance)
+Financial Risk: LOW
+Operational Risk: LOW
+Compliance Risk: MEDIUM (missing insurance certificate)
+Reputational Risk: LOW
+
+Risk Factors:
+✓ Strong financial performance
+✓ No prior disputes or issues
+✓ Clean OFAC screening
+✗ Missing required insurance documentation
+✗ Compliance gap creates enhanced review requirement
+
+Risk Mitigation:
+- Enhanced review level activated
+- All invoices require CFO approval until insurance received
+- Variance tolerance reduced to 5% (from standard 10%)
+- Payment approval authority elevated
+
+---------------------------------------
+PERFORMANCE HISTORY:
+---------------------------------------
+
+Total Invoices Processed: 12
+Total Amount Paid: $142,500
+Average Invoice: $11,875
+Payment Performance: 100% on-time
+Dispute Rate: 0%
+Quality Score: 4.8/5.0
+Delivery Score: 4.9/5.0
+
+Last Invoice: INV-4575 - $12,100 - Paid on time
+Previous Invoices: All within contract terms, no variances
+
+---------------------------------------
+NOTES & ALERTS:
+---------------------------------------
+
+[ALERT] Insurance certificate overdue - compliance gap exists
+[NOTE] Finance team requested CFO approval for all payments
+[NOTE] Procurement tracking insurance certificate receipt
+[ACTION REQUIRED] Follow up with vendor for insurance documentation
+
+Vendor has been notified of compliance gap.
+Response expected by January 20, 2026.
+
+---------------------------------------
+APPROVALS:
+---------------------------------------
+
+KYC Approved By: Maria Garcia, Compliance Officer
+Date: December 15, 2024
+
+Risk Assessment By: Robert Chen, Risk Manager
+Date: December 16, 2024
+
+Contract Approved By: Sarah Johnson, Procurement Director
+Date: December 15, 2024
+
+Special Conditions Applied By: CFO Office
+Date: January 10, 2026 (due to missing insurance)

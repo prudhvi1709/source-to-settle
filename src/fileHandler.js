@@ -109,6 +109,15 @@ export async function previewFile(file) {
           <br><small>Text extraction will be performed during processing.</small>
         </div>
       `, preview);
+    } else if (result.type === 'text') {
+      render(html`
+        <div>
+          <p class="text-muted mb-2">Text File Preview: ${result.name}</p>
+          <div class="border rounded p-3" style="max-height: 500px; overflow-y: auto; background-color: #f8f9fa; font-family: monospace; white-space: pre-wrap; font-size: 0.875rem;">
+${result.content}
+          </div>
+        </div>
+      `, preview);
     }
   } catch (e) {
     console.error("Preview error:", e);

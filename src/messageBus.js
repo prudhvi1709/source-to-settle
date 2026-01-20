@@ -52,7 +52,7 @@ export class MessageBus extends EventEmitter {
     this.messages = [];           // Full conversation history
     this.activeAgents = new Map(); // agent name → agent instance
     this.round = 0;               // Current conversation round
-    this.maxRounds = 10;          // Maximum rounds before forced termination
+    this.maxRounds = 3;           // Maximum rounds before forced termination (demo-optimized)
     this.paused = false;          // HITL pause flag
     this.pendingHITL = null;      // Current HITL escalation awaiting response
   }

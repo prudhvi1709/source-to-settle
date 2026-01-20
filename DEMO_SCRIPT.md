@@ -254,3 +254,196 @@ From this specific demo run:
 
   The good news: All the intelligence is there, it just needs better UI presentation to match the demo script narrative. The agents ARE negotiating, learning, and making
   correct decisions - it's just compressed into fewer visible rounds than ideal for storytelling.
+
+# POC
+
+POC Alignment Assessment: 7.5/10 - Detailed Analysis
+
+  Let me break down exactly what's working and what's missing by comparing the Demo Script expectations vs Actual POC behavior:
+
+  ---
+  ✅ What's Working Well (7.5 points earned)
+
+  1. Core Multi-Agent Functionality ✅
+
+  - 6 agents activate in parallel - exactly as intended
+  - 11 agent-to-agent questions - true dialogue happening
+  - Policy-driven decisions - RiskGuard correctly applies 5% enhanced tolerance
+  - Variance detection accurate - 8% variance vs contract rate identified correctly
+  - Correct final outcome - ESCALATED_TO_HUMAN (not auto-pay/auto-reject)
+  - 88% confidence scores - high accuracy across decisions
+  - Processing time: 140 seconds - fast and reasonable
+
+  2. HITL System ✅
+
+  - 6 escalation packages prepared for different roles (CFO, Compliance Officer, Procurement)
+  - Independent escalation handling - each can be accepted/rejected separately
+  - Navigation between escalations - can review all 6
+  - Decision support packages - detailed context and evidence included
+
+  3. Real-time UI ✅
+
+  - Metrics update dynamically - rounds, messages, escalations
+  - Activity stream shows dialogue - agent-to-agent questions visible
+  - Verdict display correct - ESCALATED_TO_HUMAN shows in yellow/warning color
+
+  ---
+  ❌ What's Missing (2.5 points lost)
+
+  Gap #1: Only 2 Rounds Visible Instead of 6 Rounds ❌ (-1.0 points)
+
+  Expected (from demo script line 47-68):
+  Round 1: Initial discovery
+  Round 2: ContractCraft challenges InvoiceIQ verification
+  Round 3: RiskGuard questions variance classification
+  Round 4: PayFlow checks policy compliance
+  Round 5: Agents finalize recommendations
+  Round 6: Supplier360 learning loop
+
+  Actual POC behavior:
+  Round 1: Most questions fired (10+ questions in parallel)
+  Round 2: Conversation ends
+  Total: 2 rounds (hit 12 question limit)
+
+  Why this matters:
+  - Demo script assumes you can walk through 6 distinct rounds of negotiation
+  - Current POC compresses most activity into Round 1 (parallel activation)
+  - The "iterative negotiation" story is harder to tell with only 2 visible rounds
+
+  Root cause: numberOfQuestions: 12 limit causes conversation to end before reaching Round 6
+
+  ---
+  Gap #2: Learning Loop Not Prominently Visible ❌ (-0.75 points)
+
+  Expected (from demo script line 99-108):
+  Act 4: The Learning Loop (30 seconds)
+  [Point to Supplier360 recommendations at bottom]
+
+  "Supplier360 Agent has already:
+  - Recorded this as TechFlow's first variance event
+  - Updated their vendor KPI
+  - Fed insights back to RiskGuard: 'Monitor next invoice'
+
+  The system is LEARNING and will adjust tolerance for
+  this vendor's future invoices."
+
+  Actual POC behavior:
+  - Supplier360 agent runs and generates recommendations
+  - But there's no dedicated UI section highlighting the learning loop
+  - No visual indicator showing "Vendor KPI updated" or "Future tolerance adjusted"
+  - Recommendations are mixed in with other agent outputs
+
+  Why this matters:
+  - The "learning loop" is a key differentiator vs traditional systems
+  - Demo script allocates 30 seconds to showcase this feature
+  - Currently you'd have to scroll through agent outputs to find Supplier360's insights
+  - Not visually prominent enough for client demo
+
+  What's needed:
+  - Dedicated "Learning Loop" section in the UI
+  - Visual badges like "🎯 Vendor Profile Updated" or "📊 Future Routing Adjusted"
+  - Clear display of "Next Action: Monitor next invoice from TechFlow"
+
+  ---
+  Gap #3: Round Progression Not Visually Emphasized ❌ (-0.5 points)
+
+  Expected:
+  - Visual transitions showing "Entering Round 2", "Entering Round 3"
+  - Clear demarcation between rounds in the activity stream
+  - Ability to point and say "See, now we're in Round 3 where RiskGuard challenges..."
+
+  Actual POC behavior:
+  - Round counter updates (shows "2" at top)
+  - But no visual separators or transitions in activity stream
+  - Questions from Round 1 and Round 2 blend together visually
+
+  Why this matters:
+  - Demo script assumes you can visually point to round transitions
+  - Helps tell the "iterative negotiation" story
+  - Currently rounds are tracked numerically but not visually distinct
+
+  ---
+  Gap #4: Agent Re-Verification Not Shown Across Multiple Rounds ❌ (-0.25 points)
+
+  Expected (from demo script line 62-67):
+  "ContractCraft challenges InvoiceIQ back:
+  'Is this a data extraction error or a real commercial variance?'
+
+  InvoiceIQ re-verifies using OCR:
+  'Numbers are correct. High confidence.
+  This is a true commercial variance.'"
+
+  Actual POC behavior:
+  - Agent-to-agent questioning happens
+  - But compressed into fewer rounds
+  - The "challenge and re-verify" dialogue happens quickly, not spread across visible rounds
+
+  Why this matters:
+  - The demo script highlights this as "the critical moment"
+  - Easier to showcase when it spans Round 1 → Round 2 → Round 3
+  - Currently happens but less visible due to round compression
+
+  ---
+  📊 Score Breakdown
+
+  | Category                       | Points   | Status                  |
+  |--------------------------------|----------|-------------------------|
+  | Core multi-agent functionality | 3.0/3.0  | ✅ Perfect               |
+  | HITL escalation system         | 2.0/2.0  | ✅ Perfect               |
+  | Real-time UI updates           | 1.5/1.5  | ✅ Perfect               |
+  | Multi-round progression        | 0.5/1.5  | ❌ Only 2 rounds visible |
+  | Learning loop visibility       | 0.5/1.25 | ❌ Not prominent         |
+  | Round transition UI            | 0.0/0.5  | ❌ No visual separators  |
+  | Agent re-verification flow     | 0.0/0.25 | ❌ Compressed rounds     |
+  | TOTAL                          | 7.5/10.0 | 75% aligned             |
+
+  ---
+  🔧 How to Reach 10/10
+
+  Fix #1: Increase Question Limit to Enable 6 Rounds
+
+  // config.json line 126
+  "numberOfQuestions": 25  // Up from 12, allows full 6-round flow
+
+  Fix #2: Add Dedicated Learning Loop UI Section
+
+  Create a new section in the dashboard after "Final Recommendations":
+  <div class="learning-loop-section">
+    <h4>🎯 Learning Loop - System Adaptation</h4>
+    <div class="alert alert-info">
+      <i class="bi bi-graph-up-arrow"></i>
+      <strong>Vendor Profile Updated:</strong> First variance event recorded for TechFlow
+      <br>
+      <strong>Future Action:</strong> Monitor next invoice with enhanced scrutiny
+      <br>
+      <strong>Threshold Adjustment:</strong> Maintain 5% tolerance for next 3 invoices
+    </div>
+  </div>
+
+  Fix #3: Add Visual Round Separators
+
+  Add dividers in the activity stream:
+  <div class="round-separator">
+    <span class="badge bg-primary">Round 2 Starting</span>
+    <hr>
+  </div>
+
+  Fix #4: Highlight Agent Re-Verification Moments
+
+  Add special styling to "challenge-response" question pairs:
+  <div class="agent-challenge-card">
+    <div class="challenge">ContractCraft → InvoiceIQ: Is this a data error?</div>
+    <div class="response">InvoiceIQ → ContractCraft: Verified. True commercial variance.</div>
+  </div>
+
+  ---
+  🎯 Bottom Line
+
+  The POC is 7.5/10 because:
+  - ✅ Core functionality is perfect - agents work, dialogue happens, correct decisions made
+  - ✅ HITL system is production-ready - all escalations handled independently
+  - ❌ Visual storytelling is compressed - only 2 rounds visible, learning loop not prominent
+  - ❌ Demo script expects 6-round journey - POC delivers 2-round journey
+
+  The good news: All the intelligence is there, it just needs better UI presentation to match the demo script narrative. The agents ARE negotiating, learning, and making
+  correct decisions - it's just compressed into fewer visible rounds than ideal for storytelling.

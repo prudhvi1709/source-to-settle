@@ -561,13 +561,13 @@
       }
     }
 
-    /* Round divider */
-    .round-divider {
+    /* Round divider / separator */
+    .round-divider, .round-separator {
       text-align: center;
       margin: 1.5rem 0;
     }
 
-    .round-divider hr {
+    .round-divider hr, .round-separator hr {
       margin: 0.5rem 0;
       opacity: 0.3;
     }
@@ -582,6 +582,93 @@
       border-radius: 2rem;
       font-weight: 600;
       font-size: 0.9rem;
+    }
+
+    /* Challenge-Response Pair Card */
+    .agent-challenge-card {
+      background: var(--bs-card-bg);
+      border: 2px solid #ffc107;
+      border-radius: 0.75rem;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      box-shadow: 0 4px 12px rgba(255, 193, 7, 0.2);
+      transition: all 0.3s ease;
+    }
+
+    .agent-challenge-card:hover {
+      box-shadow: 0 6px 16px rgba(255, 193, 7, 0.3);
+      transform: translateY(-2px);
+    }
+
+    .agent-challenge-card.animate-in {
+      animation: slideInUp 0.5s ease-out;
+    }
+
+    .challenge-response-header {
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      padding-bottom: 0.75rem;
+      margin-bottom: 0.75rem;
+      border-bottom: 1px solid var(--bs-border-color);
+      font-size: 0.9rem;
+      color: var(--bs-secondary-color);
+    }
+
+    .challenge {
+      background: linear-gradient(135deg, rgba(255, 193, 7, 0.1), rgba(255, 193, 7, 0.05));
+      border-left: 4px solid #ffc107;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+      margin-bottom: 0.75rem;
+    }
+
+    .challenge-label {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #f57c00;
+      margin-bottom: 0.5rem;
+    }
+
+    .challenge-content {
+      font-size: 0.9rem;
+    }
+
+    .response {
+      background: linear-gradient(135deg, rgba(25, 135, 84, 0.1), rgba(25, 135, 84, 0.05));
+      border-left: 4px solid #198754;
+      border-radius: 0.5rem;
+      padding: 0.75rem;
+    }
+
+    .response-label {
+      display: flex;
+      align-items: center;
+      gap: 0.25rem;
+      font-size: 0.85rem;
+      font-weight: 600;
+      color: #198754;
+      margin-bottom: 0.5rem;
+    }
+
+    .response-content {
+      font-size: 0.9rem;
+    }
+
+    .verification-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.25rem;
+      margin-top: 0.75rem;
+      padding: 0.5rem 0.75rem;
+      background: var(--bs-success-bg-subtle);
+      color: var(--bs-success-text-emphasis);
+      border-radius: 0.5rem;
+      font-size: 0.85rem;
+      font-weight: 500;
     }
 
     /* Message particles for workflow animation */
@@ -1132,6 +1219,7 @@
             <button type="button" class="btn btn-sm btn-light" id="hitl-next-btn" title="Next escalation">
               <i class="bi bi-chevron-right"></i>
             </button>
+            <button type="button" class="btn-close btn-close-white" id="hitl-close-btn" aria-label="Close"></button>
           </div>
         </div>
         <div class="modal-body">

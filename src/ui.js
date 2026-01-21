@@ -203,12 +203,12 @@ function renderFinalVerdict(evaluation) {
           <i class="bi ${verdictIcon} display-1 text-${verdictColor} mb-3"></i>
           <h2 class="display-4 fw-bold text-${verdictColor} mb-2">${evaluation.verdict}</h2>
           <div class="d-flex justify-content-center align-items-center gap-3 mb-3">
-            <span class="badge bg-${confidenceColor} fs-5 px-4 py-2">${evaluation.confidenceScore}% Confidence</span>
+            <span class="badge bg-${confidenceColor} fs-5 px-4 py-2">${Number(evaluation.confidenceScore).toFixed(2)}% Confidence</span>
             <span class="badge bg-${riskColor} fs-5 px-4 py-2">${evaluation.riskLevel} Risk</span>
           </div>
           <div class="progress mb-2" style="height: 25px;">
             <div class="progress-bar bg-${confidenceColor}" role="progressbar"
-                 style="width: ${evaluation.confidenceScore}%">${evaluation.confidenceScore}%</div>
+                 style="width: ${evaluation.confidenceScore}%">${Number(evaluation.confidenceScore).toFixed(2)}%</div>
           </div>
           <p class="text-muted mb-0"><small>Confidence Level: ${confidenceLevel}</small></p>
         </div>

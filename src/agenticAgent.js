@@ -29,7 +29,8 @@ export class AgenticAgent {
       receivedAnswers: [],
       riskTolerance: 10, // Default 10% variance tolerance
       concerns: [],
-      resolved: false
+      resolved: false,
+      conversationHistory: [] // Track conversation for prompt caching
     };
 
     // Register with message bus
@@ -187,6 +188,9 @@ Return ONLY valid JSON, no other text.`;
       return [];
     }
 
+    // Store conversation history for caching check
+    this.state.conversationHistory = conversationHistory || [];
+
     // Get messages relevant to this agent
     const myQuestions = conversationHistory.filter(
       m => m.from === this.name && m.type === MessageType.QUESTION
@@ -252,6 +256,9 @@ Return ONLY valid JSON, no other text.`;
   async answerQuestion(questionMessage, conversationHistory) {
     console.log(`  🤔 ${this.name}: Answering question from ${questionMessage.from}...`);
 
+    // Store conversation history for caching check
+    this.state.conversationHistory = conversationHistory || [];
+
     // Emit thinking
     this.bus.emit('agent-thinking', {
       agent: this.name,
@@ -287,7 +294,9 @@ Provide a direct answer and return valid JSON:
 Return ONLY valid JSON.`;
       }
 
-      const response = await this.callLLM(prompt);
+      // Enable caching for rounds 2+ (conversation history exists)
+      const enableCaching = this.state.conversationHistory.length > 0;
+      const response = await this.callLLM(prompt, enableCaching);
 
       // Emit done thinking
       this.bus.emit('agent-done-thinking', {
@@ -375,7 +384,9 @@ Required roles: "CFO", "Manager", "Compliance Officer"
 Return ONLY valid JSON.`;
       }
 
-      const response = await this.callLLM(prompt);
+      // Enable caching for rounds 2+ (conversation history exists)
+      const enableCaching = this.state.conversationHistory.length > 0;
+      const response = await this.callLLM(prompt, enableCaching);
 
       // Update state
       if (response.resolved) {
@@ -504,7 +515,7 @@ Return ONLY valid JSON.`;
   /**
    * Call LLM with streaming support
    */
-  async callLLM(prompt) {
+  async callLLM(prompt, enableCaching = false) {
     const { baseUrl, apiKey } = await openaiConfig();
 
     if (!baseUrl || !apiKey) {
@@ -520,9 +531,44 @@ Return ONLY valid JSON.`;
     const modelInput = document.querySelector("#model");
     const temperatureInput = document.querySelector("#temperature");
 
+    // Prepare messages with caching support
+    // For Anthropic API: system message can be cached, user message contains dynamic content
+    const messages = enableCaching && this.state.conversationHistory.length > 0
+      ? [
+          // System message with agent context (cached)
+          {
+            role: "system",
+            content: [
+              {
+                type: "text",
+                text: `You are ${this.name}, an AI agent in a multi-agent procurement system.
+
+## Your Role
+${this.config.role}
+
+## Your Description
+${this.config.description}
+
+## Your Task
+${this.config.task}`,
+                cache_control: { type: "ephemeral" }
+              }
+            ]
+          },
+          // User message with current prompt (not cached)
+          {
+            role: "user",
+            content: prompt
+          }
+        ]
+      : [
+          // Simple format for round 1 or non-cached calls
+          { role: "user", content: prompt }
+        ];
+
     const body = {
       model: modelInput?.value || config.defaults?.model || "gpt-5-mini",
-      messages: [{ role: "user", content: prompt }],
+      messages: messages,
       stream: true, // Enable streaming
     };
 

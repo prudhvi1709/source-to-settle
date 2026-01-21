@@ -59,7 +59,7 @@ export class WorkflowStatus {
     if (stepBadge) {
       stepBadge.className = evaluation.verdict === "APPROVE" ? "badge bg-success" : "badge bg-danger";
     }
-    this.updateBanner(`Workflow Complete: ${evaluation.verdict}`, `${evaluation.confidenceScore}% confidence`);
+    this.updateBanner(`Workflow Complete: ${evaluation.verdict}`, `${Number(evaluation.confidenceScore).toFixed(2)}% confidence`);
   }
 }
 
@@ -297,7 +297,7 @@ export async function runFinalEvaluation(extractedData, agentResults) {
     const evaluation = JSON.parse(fullResponse);
 
     workflowStatus.update("finaleval", "completed", {
-      description: `${evaluation.verdict} (${evaluation.confidenceScore}% confidence)`,
+      description: `${evaluation.verdict} (${Number(evaluation.confidenceScore).toFixed(2)}% confidence)`,
       icon: "bi bi-clipboard-check",
       index: agentResults.length + 1
     });
@@ -349,10 +349,19 @@ export async function processMultiAgenticWorkflow(extractedData, numberOfQuestio
           <i class="bi bi-robot fs-3 me-3"></i>
           <div class="flex-grow-1">
             <h5 class="alert-heading mb-1">🚀 Multi-Agentic Workflow Active</h5>
-            <p class="mb-0 small">
+            <p class="mb-1 small">
               Agents are working in parallel, questioning each other, and negotiating decisions.
               Watch the real-time conversation dashboard below.
             </p>
+            <div class="small text-muted mt-2" style="line-height: 1.8;">
+              <strong>Agent Roster:</strong><br>
+              🏢 <strong>VendorIntake:</strong> Validates vendor data, routes to risk/invoice<br>
+              🛡️ <strong>RiskGuard:</strong> Sets policy thresholds, enforces variance tolerance<br>
+              📋 <strong>ContractCraft:</strong> Validates rates vs contract, checks for change orders<br>
+              📄 <strong>InvoiceIQ:</strong> Extracts invoice data, re-verifies when challenged<br>
+              💰 <strong>PayFlow:</strong> Enforces payment policy, blocks violations<br>
+              📊 <strong>Supplier360:</strong> Updates vendor KPIs, feeds learning back
+            </div>
           </div>
           <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
         </div>

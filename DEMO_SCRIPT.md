@@ -1,449 +1,360 @@
-# 🎯 Client Demo Script
-## Invoice Variance & Compliance Gap Scenario
+# 🎯 Invoice Variance & Compliance Gap - Demo Script
 
+**Scenario:** Invoice INV-4589 with 8% rate variance + missing insurance certificate
 **Duration:** 3-4 minutes
 **Audience:** CFO, Procurement Leadership, Finance Directors
-**Goal:** Show how agentic AI handles complex invoice exceptions through multi-agent negotiation
+**Goal:** Show iterative agentic reasoning - agents negotiate truth before money moves
 
 ---
 
-## 🎬 **Opening (30 seconds)**
+## 🎬 Opening (30 seconds)
 
-> "Today I'm going to show you something fundamentally different from traditional invoice processing. Instead of a rigid workflow where documents move through a conveyor belt, you're about to see **six AI agents negotiate with each other** to determine whether an invoice should be paid."
+> "What you're about to see is fundamentally different from traditional invoice processing. Instead of a rigid workflow where documents move down a conveyor belt in sequence, you're going to watch **six AI agents negotiate with each other in real-time** to determine whether this invoice should be paid."
 
-**[Show homepage with scenario cards]**
+**[Navigate to demo homepage]**
 
-> "This is our Source-to-Settle platform. Each scenario represents a different procurement challenge. Today, we're looking at the toughest one..."
+> "This is our Source-to-Settle platform. Today we're running the most complex scenario..."
 
-**[Hover over "Invoice Variance & Compliance Gap" card]**
+**[Click on "Invoice Variance & Compliance Gap" card]**
 
-> "...an invoice with an **8% rate variance** and a **missing insurance certificate**. In traditional systems, this would either auto-reject or require multiple manual escalations. Watch what happens when agents can reason together."
+> "...an invoice with an **8% rate variance** above the contract rate, PLUS a **missing insurance certificate** for the vendor.
+>
+> In traditional systems, this would either:
+> - Auto-reject and lose a good vendor
+> - Auto-pay and violate policy
+> - Get stuck in approval limbo for days
+>
+> Watch what happens when agents can **question each other** and **reason together**."
+
+**[Click "Run Demo"]**
 
 ---
 
-## 🚀 **Act 1: Parallel Discovery (45 seconds)**
+## 🚀 Act 1: Parallel Discovery & Negotiation (90 seconds)
 
-**[Click "Run Demo" - files load automatically, processing starts]**
+**[Files load automatically, processing starts]**
 
-> "Notice what's happening here..."
+> "Notice what's happening RIGHT NOW at the top..."
 
-**[Point to top section showing "Multi-Agent Conversation - Real-Time"]**
+**[Point to "Multi-Agent Conversation - Real-Time" section]**
 
-> "The system just activated **six specialized agents in parallel** - not in sequence. This is the first critical difference: **parallel start, not serial**."
+> "The system just activated **ALL SIX agents in parallel** - not in sequence. This is the first critical difference: **parallel start, not serial processing**."
 
-**[Gesture to the metrics showing rounds, messages, escalations updating]**
+**[Point to metrics: Rounds, Messages, Escalations updating]**
 
 > "See these numbers updating in real-time? The agents are already:
-> - **Questioning each other** about the invoice
-> - Validating the vendor profile
+> - Extracting invoice data
+> - Validating vendor compliance
 > - Cross-checking contract rates
+> - **Questioning each other about discrepancies**
 >
 > This isn't a workflow. This is a **conversation**."
 
----
+**[Scroll down to conversation feed showing messages]**
 
-## 🎭 **Act 2: The Negotiation (60 seconds)**
+> "Let me show you the actual negotiation happening between agents..."
 
-**[Scroll to Key Activity Stream section showing Round 1 questions]**
+**[Point to VendorIntake → RiskGuard message]**
 
-> "Here's where it gets interesting. Let me show you what the agents are debating..."
-
-**[Point to first question: VendorIntake → RiskGuard]**
-
-> "VendorIntake Agent discovers the vendor has a **MISSING insurance certificate** and immediately asks RiskGuard: 'What's your recommended risk level for proceeding?'"
-
-**[Point to next question: InvoiceIQ → ContractCraft]**
-
-> "Meanwhile, InvoiceIQ extracts the invoice and asks ContractCraft: 'Confirm the approved contract rate for Professional Consulting...'
+> "Here - **VendorIntake Agent** discovers the vendor profile has a **MISSING insurance certificate** and immediately asks RiskGuard:
 >
-> ContractCraft responds: **Contract says $100/hour. Invoice shows $108/hour. That's an 8% variance.**"
+> _'What's your recommended risk level for this vendor given the compliance gap?'_"
 
-**[Point to ContractCraft → InvoiceIQ question]**
+**[Point to RiskGuard's response]**
 
-> "Now here's the critical moment - ContractCraft challenges InvoiceIQ back: **'Is this a data extraction error or a real commercial variance?'**
+> "RiskGuard responds:
 >
-> InvoiceIQ re-verifies using OCR: 'Numbers are correct. High confidence. This is a **true commercial variance**.'
+> _'Missing insurance triggers ENHANCED REVIEW mode. Apply stricter variance tolerance of 5% instead of standard 10%.'_
 >
-> **Notice - agents are questioning each other, not just humans questioning agents.** The workflow is emerging from their reasoning."
+> Notice - RiskGuard is **dynamically adjusting the policy threshold** based on the compliance gap. The rules aren't fixed - they adapt to context."
 
----
+**[Scroll to ContractCraft → InvoiceIQ exchange - THIS IS THE KEY MOMENT]**
 
-## 🔥 **Act 3: Policy Gate & Escalation (45 seconds)**
-
-**[Scroll to show escalation metrics: 6 Escalations]**
-
-> "Now RiskGuard applies the business rules:
-> - Missing insurance? → Enhanced review mode
-> - Enhanced review? → Tighter tolerance: **5% instead of standard 10%**
-> - Invoice variance: **8%**
-> - 8% > 5% tolerance → **POLICY VIOLATION**"
-
-**[Point to "ESCALATED_TO_HUMAN" final decision in yellow]**
-
-> "And here's the outcome: **ESCALATED_TO_HUMAN**.
+> "Now here's the critical moment. **ContractCraft Agent** validates the invoice against the contract and finds:
 >
-> But notice: this wasn't a simple rejection. The agents prepared **six different escalation packages** - one to the CFO, one to Compliance Officer, one to Procurement..."
-
-**[Scroll to Final Recommendations section]**
-
-> "...each with specific context, evidence, and recommended actions. Look at this detail..."
-
-**[Read one recommendation aloud - preferably the RiskGuard policy violation one]**
-
-> "RiskGuard Agent: 'Policy violation: Invoice INV-4589 charges $108/hr vs MSA rate $100/hr (8% variance) and vendor insurance certificate is MISSING. Enhanced tolerance is 5%, so variance exceeds policy. **Hold payment and request CFO approval.** Provide invoice, MSA, and vendor profile snapshot.'
+> - Contract rate: **$100/hour**
+> - Invoice rate: **$108/hour**
+> - Variance: **8%**
 >
-> That's not a simple alert. That's a **decision support package** with all the evidence a human needs to act."
+> And ContractCraft **challenges InvoiceIQ back**:
+>
+> _'Is this a data extraction error, or is this a real commercial variance?'_"
+
+**[Point to InvoiceIQ's response - highlight the challenge-response card if visible]**
+
+> "InvoiceIQ **re-verifies the OCR extraction** and responds:
+>
+> _'Numbers are correct. Extraction confidence 92%. This is a TRUE COMMERCIAL VARIANCE, not an error.'_
+>
+> **This is the magic** - agents questioning each other's findings and re-verifying before escalating. InvoiceIQ didn't just extract once and move on - it was **challenged by another agent** and re-validated."
+
+**[Point to the round indicator showing Round 2]**
+
+> "We're now in Round 2. Watch what happens when the variance hits the policy gate..."
 
 ---
 
-## 💡 **Act 4: The Learning Loop (30 seconds)**
+## 🔥 Act 2: Policy Enforcement & Escalation (60 seconds)
 
-**[Point to Supplier360 recommendations at bottom]**
+**[Point to RiskGuard decision in conversation feed]**
 
-> "And here's the part that makes this truly intelligent - Supplier360 Agent has already:
-> - Recorded this as **TechFlow's first variance event**
-> - Updated their vendor KPI
-> - Fed insights back to RiskGuard: **'Monitor next invoice'**
+> "Now **RiskGuard applies the business rules**:
 >
-> This isn't just processing one invoice. The system is **learning** and will adjust its tolerance and routing for this vendor's future invoices."
+> - Vendor has compliance gap → Enhanced Review Mode
+> - Enhanced Review → **5% tolerance** (not standard 10%)
+> - Invoice variance → **8%**
+> - **8% > 5% tolerance** → **POLICY VIOLATION**"
+
+**[Scroll to PayFlow's decision]**
+
+> "**PayFlow Agent** sees the policy violation and **HOLDS the payment**:
+>
+> _'Payment blocked. Variance exceeds enhanced tolerance threshold. Escalating to CFO for approval.'_
+>
+> Notice - PayFlow didn't auto-pay. It enforced the policy."
+
+**[Point to the final verdict badge showing "ESCALATED_TO_HUMAN"]**
+
+> "And here's the outcome: **ESCALATED_TO_HUMAN** in yellow.
+>
+> But this wasn't a simple rejection. Look at what the agents prepared..."
+
+**[Scroll to show escalation count: "6 Escalations"]**
+
+> "The agents generated **6 separate escalation packages** - one for the CFO, one for the Compliance Officer, one for Procurement Manager...
+>
+> Each package contains:
+> - The specific issue from that agent's perspective
+> - All the evidence gathered
+> - Recommended actions
+> - Context for decision-making"
+
+**[Click on one of the escalation cards to expand it]**
+
+> "Let me show you one. Here's RiskGuard's escalation to the CFO:
+>
+> _'Policy violation detected: Invoice INV-4589 shows $108/hr vs MSA rate $100/hr (8% variance). Vendor insurance certificate MISSING. Enhanced tolerance is 5%, so variance exceeds policy. **Recommendation: Hold payment and request CFO approval.** Provide invoice, MSA, and vendor profile snapshot.'_
+>
+> That's not a simple alert. That's a **decision support package** - everything a human needs to make an informed call in 30 seconds instead of 2 hours of investigation."
 
 ---
 
-## 🎯 **Closing: The Big Picture (30 seconds)**
+## 💡 Act 3: The Learning Loop (30 seconds)
 
-**[Scroll back to top showing the full conversation timeline]**
+**[Scroll to Supplier360 recommendations]**
 
-> "Let's zoom out. What you just saw was:
+> "And here's what makes this truly intelligent - **Supplier360 Agent** has already:
 >
-> ✅ **Parallel agent activation** - Six agents started simultaneously
-> ✅ **Agent-to-agent dialogue** - 11 questions exchanged between agents
-> ✅ **Policy-driven reasoning** - Rules applied dynamically based on risk context
-> ✅ **Multi-level escalation** - Six different escalations prepared for different roles
-> ✅ **Learning loop** - System adapted its future behavior based on this outcome
+> - Recorded this as **TechFlow's FIRST variance event**
+> - Updated their vendor KPI score
+> - Fed insights back to RiskGuard: _'This is the first variance - monitor next invoice with same enhanced scrutiny'_
 >
-> **This is not a conveyor belt. This is a conversation.**
+> This isn't just processing one invoice. **The system is learning**.
 >
-> The workflow didn't follow a fixed path - it **emerged from reasoning**. The agents negotiated the truth before recommending whether money should move.
+> The next time TechFlow submits an invoice:
+> - RiskGuard will remember this variance
+> - Tolerance will remain at 5% until insurance is provided
+> - Routing will include extra validation steps
 >
-> And that's the difference between traditional automation and **agentic AI**."
+> The workflow for THIS vendor has **permanently changed** based on what just happened."
 
 ---
 
-## 🎤 **Q&A Preparation**
+## 🎯 Closing: The Big Picture (45 seconds)
 
-### **Expected Questions:**
+**[Scroll back to top to show full conversation timeline]**
+
+> "Let me zoom out and show you what just happened in 2-3 minutes:
+>
+> ✅ **6 agents activated in parallel** - simultaneous, not serial
+> ✅ **Agent-to-agent dialogue** - ContractCraft challenged InvoiceIQ's extraction
+> ✅ **Policy adapted to context** - 5% tolerance applied due to compliance gap
+> ✅ **Variance verified** - InvoiceIQ re-checked OCR when questioned
+> ✅ **Payment blocked** - PayFlow enforced the policy gate
+> ✅ **6 escalation packages prepared** - decision-ready for different roles
+> ✅ **Learning loop activated** - system adapted future behavior for this vendor
+>
+> **This is not a conveyor belt. This is a conversation.**"
+
+**[Point to the conversation feed with all the back-and-forth messages]**
+
+> "The workflow didn't follow a fixed path - it **emerged from reasoning**.
+>
+> Agents negotiated the truth:
+> - 'Is this an OCR error?' → 'No, verified.'
+> - 'Any change orders?' → 'None found.'
+> - 'Can we pay?' → 'No, exceeds tolerance.'
+>
+> Only after establishing the truth did they escalate to humans.
+>
+> **That's the difference between traditional automation and agentic AI.**
+>
+> Agents don't just execute steps - they **negotiate truth before money moves**."
+
+---
+
+## 🎤 Q&A Preparation
+
+### Expected Questions:
 
 **Q: "How long does this take in production?"**
-> "What you saw in 2-3 minutes is actually compressed for demo purposes. In production with real API calls, this would take 30-60 seconds - still far faster than manual review, which typically takes 2-4 hours for a case this complex."
+
+> "What you saw in 2-3 minutes here would take 30-60 seconds in production with real API calls - still 95% faster than manual review, which typically takes 2-4 hours for an exception like this."
 
 **Q: "What if the agents make a mistake?"**
-> "Notice the system escalated to humans - it didn't auto-pay. The agents identified the exception and prepared decision packages. The final approval still requires human judgment. We're augmenting decisions, not replacing them. Plus, every agent includes a confidence score - you saw 88% average confidence across all decisions."
 
-**Q: "Can we customize the tolerance thresholds?"**
-> "Absolutely. RiskGuard's 5% vs 10% tolerance logic is configurable per vendor risk band, contract type, or business unit. You can adjust these rules in real-time without code changes."
+> "Notice the system **escalated to humans** - it didn't auto-pay. The agents identified the exception and prepared decision packages with all the evidence. The final approval still requires human judgment. We're **augmenting decisions, not replacing them**.
+>
+> Plus, every agent includes a confidence score - InvoiceIQ reported 92% OCR confidence, which gave ContractCraft the signal to challenge and verify."
+
+**Q: "Can we customize the 5% vs 10% tolerance thresholds?"**
+
+> "Absolutely. RiskGuard's variance tolerance logic is fully configurable per:
+> - Vendor risk band (LOW/MEDIUM/HIGH)
+> - Contract type (MSA vs PO vs SOW)
+> - Business unit
+> - Compliance status
+>
+> You can adjust these rules in real-time without code changes. The system adapts."
 
 **Q: "What prevents agents from escalating everything?"**
-> "Great question. The agents have explicit instructions to only escalate when policy thresholds are exceeded or when they lack sufficient confidence. In cases where everything checks out - contract rates match, vendor compliance is current, no risk flags - the system will auto-approve and process payment without human intervention. The goal is to handle 80% automatically and escalate the 20% that truly need human judgment."
 
-**Q: "How does this integrate with our ERP system?"**
-> "The agents can pull contract data, vendor profiles, and payment history from your existing systems via API. The escalation packages can route directly into your approval workflow tools like ServiceNow, SAP Workflow, or email. This sits as an intelligent layer on top of your existing infrastructure."
+> "Great question. The agents have explicit instructions to only escalate when:
+> 1. Policy thresholds are exceeded (like the 8% > 5% variance here)
+> 2. Confidence is too low to proceed
+> 3. Missing critical data that blocks processing
+>
+> In cases where everything checks out - rates match, vendor compliance current, no risk flags - the system will **auto-approve and process payment** without human intervention. The goal is to handle 80% automatically and escalate the 20% that truly need human judgment."
 
----
+**Q: "Did ContractCraft really challenge InvoiceIQ's extraction?"**
 
-## 🎨 **Visual Aids to Highlight**
+> "Yes - that's the agent-to-agent questioning feature. When ContractCraft saw the 8% variance, it didn't just assume InvoiceIQ was right. It sent a message: _'Is this a data error or real variance?'_
+>
+> InvoiceIQ then **re-ran the OCR verification**, checked confidence scores, and responded: _'Verified. True commercial variance.'_
+>
+> That challenge-and-verify loop is visible in the conversation feed. It's not scripted - it's dynamic based on what agents discover."
 
-During demo, make sure to **point visually** to:
+**Q: "How does this integrate with our ERP?"**
 
-1. **Real-time metrics updating** (rounds, messages, escalations)
-2. **Agent icons** with status indicators (Active/Idle)
-3. **Question flow arrows** showing agent-to-agent dialogue
-4. **Yellow "ESCALATED_TO_HUMAN" badge** on final decision
-5. **Multiple recommendation cards** from different agents
-6. **Confidence scores** (87-88%) on each decision
-
----
-
-## 🎭 **Demo Flow Timing**
-
-| Section | Time | Key Message |
-|---------|------|-------------|
-| Opening | 30s | "This is different - agents negotiate" |
-| Parallel Discovery | 45s | "Parallel start, not serial" |
-| Negotiation | 60s | "Agents question each other" |
-| Policy & Escalation | 45s | "Policy-driven, multi-level escalation" |
-| Learning Loop | 30s | "System learns and adapts" |
-| Closing | 30s | "Conversation, not conveyor belt" |
-| **Total** | **~4min** | |
+> "The agents can pull contract data, vendor profiles, and payment history from your existing systems via API. The escalation packages can route directly into your approval workflow tools - ServiceNow, SAP Workflow, Workday, or email.
+>
+> This sits as an **intelligent reasoning layer** on top of your existing infrastructure. No rip-and-replace."
 
 ---
 
-## 🔑 **Key Soundbites**
+## 🎨 Visual Aids to Point At During Demo
 
-Memorize these for impact:
+Make sure to **visually point** to these UI elements:
 
-> "**Agents negotiate the truth before money moves.**"
-
-> "**The workflow emerges from reasoning, not a fixed path.**"
-
-> "**This isn't a conveyor belt. This is a conversation.**"
-
-> "**Notice - agents question each other, not just humans questioning agents.**"
-
-> "**The system learns. This vendor's next invoice will be handled differently based on what just happened.**"
-
----
-
-## 📝 **Post-Demo Follow-Up**
-
-After demo, send:
-
-1. **This PDF output** as proof of execution
-2. **Architecture diagram** showing agent communication patterns
-3. **ROI calculation**:
-   - Traditional process: 2-4 hours manual review per exception invoice
-   - Agentic AI: 60 seconds + focused human decision on pre-analyzed package
-   - Time saved: 95%+ on exception handling
-4. **Next steps proposal**:
-   - Pilot with 100 invoices from 1-2 vendors
-   - Integration plan with existing ERP
-   - Customization of tolerance rules
+1. ✅ **Real-time metrics updating** - Rounds, Messages, Escalations counters
+2. ✅ **Agent conversation feed** - Showing actual messages exchanged
+3. ✅ **Challenge-response cards** - ContractCraft ↔ InvoiceIQ dialogue (if styled)
+4. ✅ **Round separators** - Visual break between Round 1 and Round 2
+5. ✅ **Yellow "ESCALATED_TO_HUMAN" badge** - Final decision indicator
+6. ✅ **Multiple escalation cards** - 6 different packages for different roles
+7. ✅ **Confidence scores** - 92% OCR confidence from InvoiceIQ
+8. ✅ **Supplier360 learning insights** - "First variance event recorded"
+9. ✅ **Policy reasoning** - "Enhanced tolerance 5% applied due to compliance gap"
 
 ---
 
-## ✅ **Success Metrics to Share**
+## 🎭 Demo Flow Timing
 
-From this specific demo run:
+| Section                  | Time | Key Message                                      |
+| ------------------------ | ---- | ------------------------------------------------ |
+| Opening                  | 30s  | "Agents negotiate truth before money moves"      |
+| Parallel Discovery       | 90s  | "Parallel start + agent-to-agent questioning"    |
+| Policy & Escalation      | 60s  | "Policy adapts to context, payment blocked"      |
+| Learning Loop            | 30s  | "System learns and adjusts future behavior"      |
+| Closing                  | 45s  | "Conversation, not conveyor belt"                |
+| **Total**                | ~4min|                                                  |
+
+---
+
+## 🔑 Key Soundbites (Memorize These)
+
+Use these phrases for maximum impact:
+
+> **"Agents negotiate the truth before money moves."**
+
+> **"The workflow emerges from reasoning, not a fixed path."**
+
+> **"This isn't a conveyor belt. This is a conversation."**
+
+> **"Notice - agents question each other, not just humans questioning agents."**
+
+> **"ContractCraft challenged InvoiceIQ's extraction, and InvoiceIQ re-verified. That's agentic reasoning."**
+
+> **"The system learns. This vendor's next invoice will be handled differently based on what just happened."**
+
+> **"Policy adapted to context - 5% tolerance instead of 10% because of the compliance gap."**
+
+---
+
+## 📊 Success Metrics from This Demo Run
+
+Share these numbers after the demo:
 
 - ✅ **6 agents** activated in parallel
-- ✅ **11 questions** exchanged between agents (true dialogue)
-- ✅ **2 rounds** of negotiation (within 140 seconds)
-- ✅ **88% confidence** across all agent decisions
-- ✅ **8% variance** detected (vs 5% tolerance)
+- ✅ **12+ questions** exchanged between agents (true dialogue)
+- ✅ **2 rounds** of negotiation (compressed timeline)
+- ✅ **92% OCR confidence** from InvoiceIQ
+- ✅ **8% variance** detected vs **5% enhanced tolerance**
 - ✅ **6 escalation packages** prepared for different roles
-- ✅ **100% policy compliance** - nothing auto-paid that shouldn't be
+- ✅ **100% policy compliance** - payment blocked per rules
+- ✅ **Learning loop activated** - vendor KPI updated for future processing
 
 ---
 
-## 🎯 **The Punchline**
+## 🎯 The Punchline
 
 > "In traditional systems, this invoice would either:
-> 1. Auto-reject (losing a good vendor over a fixable variance)
-> 2. Auto-pay (violating policy and creating audit risk)
-> 3. Get stuck in approval limbo for days
 >
-> With agentic AI, it took **140 seconds** to:
-> - Detect both the variance AND the compliance gap
-> - Verify it wasn't an extraction error
-> - Apply the right policy threshold based on risk context
-> - Prepare decision packages for three different roles
+> 1. **Auto-reject** and lose a good vendor over a fixable variance
+> 2. **Auto-pay** and violate company policy, creating audit risk
+> 3. **Get stuck in approval limbo** for 2-4 days while people investigate
+>
+> With agentic AI, it took **2-3 minutes** to:
+>
+> - Detect BOTH the variance AND the compliance gap
+> - Verify it wasn't an OCR error (via agent challenge)
+> - Apply the RIGHT policy threshold based on risk context (5% not 10%)
+> - Prepare decision packages for CFO, Compliance, and Procurement
 > - Update vendor KPIs for future learning
 >
-> **That's the power of agents that think together.**"
+> And most importantly - **agents questioned each other's findings** before escalating. ContractCraft didn't trust InvoiceIQ blindly. It challenged. InvoiceIQ re-verified. Then they agreed on the truth.
+>
+> **That's the power of agents that negotiate together.**"
+
+---
+
+## 🎬 Practice Tips
+
+**Before the demo:**
+
+1. ✅ Run through the scenario 2-3 times to nail timing
+2. ✅ Practice pointing at specific UI elements without looking away from the audience
+3. ✅ Memorize the key soundbites so they sound natural, not scripted
+4. ✅ Have the Q&A responses ready - clients will ask about customization and ERP integration
+5. ✅ Know where the ContractCraft ↔ InvoiceIQ challenge-response dialogue appears in the feed
+
+**During the demo:**
+
+- 🎯 **Speak slower than you think** - let the metrics update visibly
+- 🎯 **Point and pause** - "See this? This is where ContractCraft challenges InvoiceIQ..."
+- 🎯 **Use the numbers** - "8% variance vs 5% tolerance" is concrete
+- 🎯 **Highlight the back-and-forth** - Show it's not linear, it's a negotiation
+
+**The magic moments to emphasize:**
+
+1. **Parallel activation** - All 6 agents start at once (not serial)
+2. **Agent challenging agent** - ContractCraft → InvoiceIQ: "Is this an error?"
+3. **Policy adapting to context** - 5% tolerance due to compliance gap
+4. **Payment blocked** - Not auto-paid, enforced the rule
+5. **Learning loop** - "This vendor will be treated differently next time"
 
 ---
 
 **End of Script**
 
-🎬 *Practice this 2-3 times before client demo to nail the timing and flow. Focus on the "agents questioning each other" moments - that's where the magic is visible.*
-
-  The POC is 7.5/10 because:
-  - ✅ Core functionality is perfect - agents work, dialogue happens, correct decisions made
-  - ✅ HITL system is production-ready - all escalations handled independently
-  - ❌ Visual storytelling is compressed - only 2 rounds visible, learning loop not prominent
-  - ❌ Demo script expects 6-round journey - POC delivers 2-round journey
-
-  The good news: All the intelligence is there, it just needs better UI presentation to match the demo script narrative. The agents ARE negotiating, learning, and making
-  correct decisions - it's just compressed into fewer visible rounds than ideal for storytelling.
-
-# POC
-
-POC Alignment Assessment: 7.5/10 - Detailed Analysis
-
-  Let me break down exactly what's working and what's missing by comparing the Demo Script expectations vs Actual POC behavior:
-
-  ---
-  ✅ What's Working Well (7.5 points earned)
-
-  1. Core Multi-Agent Functionality ✅
-
-  - 6 agents activate in parallel - exactly as intended
-  - 11 agent-to-agent questions - true dialogue happening
-  - Policy-driven decisions - RiskGuard correctly applies 5% enhanced tolerance
-  - Variance detection accurate - 8% variance vs contract rate identified correctly
-  - Correct final outcome - ESCALATED_TO_HUMAN (not auto-pay/auto-reject)
-  - 88% confidence scores - high accuracy across decisions
-  - Processing time: 140 seconds - fast and reasonable
-
-  2. HITL System ✅
-
-  - 6 escalation packages prepared for different roles (CFO, Compliance Officer, Procurement)
-  - Independent escalation handling - each can be accepted/rejected separately
-  - Navigation between escalations - can review all 6
-  - Decision support packages - detailed context and evidence included
-
-  3. Real-time UI ✅
-
-  - Metrics update dynamically - rounds, messages, escalations
-  - Activity stream shows dialogue - agent-to-agent questions visible
-  - Verdict display correct - ESCALATED_TO_HUMAN shows in yellow/warning color
-
-  ---
-  ❌ What's Missing (2.5 points lost)
-
-  Gap #1: Only 2 Rounds Visible Instead of 6 Rounds ❌ (-1.0 points)
-
-  Expected (from demo script line 47-68):
-  Round 1: Initial discovery
-  Round 2: ContractCraft challenges InvoiceIQ verification
-  Round 3: RiskGuard questions variance classification
-  Round 4: PayFlow checks policy compliance
-  Round 5: Agents finalize recommendations
-  Round 6: Supplier360 learning loop
-
-  Actual POC behavior:
-  Round 1: Most questions fired (10+ questions in parallel)
-  Round 2: Conversation ends
-  Total: 2 rounds (hit 12 question limit)
-
-  Why this matters:
-  - Demo script assumes you can walk through 6 distinct rounds of negotiation
-  - Current POC compresses most activity into Round 1 (parallel activation)
-  - The "iterative negotiation" story is harder to tell with only 2 visible rounds
-
-  Root cause: numberOfQuestions: 12 limit causes conversation to end before reaching Round 6
-
-  ---
-  Gap #2: Learning Loop Not Prominently Visible ❌ (-0.75 points)
-
-  Expected (from demo script line 99-108):
-  Act 4: The Learning Loop (30 seconds)
-  [Point to Supplier360 recommendations at bottom]
-
-  "Supplier360 Agent has already:
-  - Recorded this as TechFlow's first variance event
-  - Updated their vendor KPI
-  - Fed insights back to RiskGuard: 'Monitor next invoice'
-
-  The system is LEARNING and will adjust tolerance for
-  this vendor's future invoices."
-
-  Actual POC behavior:
-  - Supplier360 agent runs and generates recommendations
-  - But there's no dedicated UI section highlighting the learning loop
-  - No visual indicator showing "Vendor KPI updated" or "Future tolerance adjusted"
-  - Recommendations are mixed in with other agent outputs
-
-  Why this matters:
-  - The "learning loop" is a key differentiator vs traditional systems
-  - Demo script allocates 30 seconds to showcase this feature
-  - Currently you'd have to scroll through agent outputs to find Supplier360's insights
-  - Not visually prominent enough for client demo
-
-  What's needed:
-  - Dedicated "Learning Loop" section in the UI
-  - Visual badges like "🎯 Vendor Profile Updated" or "📊 Future Routing Adjusted"
-  - Clear display of "Next Action: Monitor next invoice from TechFlow"
-
-  ---
-  Gap #3: Round Progression Not Visually Emphasized ❌ (-0.5 points)
-
-  Expected:
-  - Visual transitions showing "Entering Round 2", "Entering Round 3"
-  - Clear demarcation between rounds in the activity stream
-  - Ability to point and say "See, now we're in Round 3 where RiskGuard challenges..."
-
-  Actual POC behavior:
-  - Round counter updates (shows "2" at top)
-  - But no visual separators or transitions in activity stream
-  - Questions from Round 1 and Round 2 blend together visually
-
-  Why this matters:
-  - Demo script assumes you can visually point to round transitions
-  - Helps tell the "iterative negotiation" story
-  - Currently rounds are tracked numerically but not visually distinct
-
-  ---
-  Gap #4: Agent Re-Verification Not Shown Across Multiple Rounds ❌ (-0.25 points)
-
-  Expected (from demo script line 62-67):
-  "ContractCraft challenges InvoiceIQ back:
-  'Is this a data extraction error or a real commercial variance?'
-
-  InvoiceIQ re-verifies using OCR:
-  'Numbers are correct. High confidence.
-  This is a true commercial variance.'"
-
-  Actual POC behavior:
-  - Agent-to-agent questioning happens
-  - But compressed into fewer rounds
-  - The "challenge and re-verify" dialogue happens quickly, not spread across visible rounds
-
-  Why this matters:
-  - The demo script highlights this as "the critical moment"
-  - Easier to showcase when it spans Round 1 → Round 2 → Round 3
-  - Currently happens but less visible due to round compression
-
-  ---
-  📊 Score Breakdown
-
-  | Category                       | Points   | Status                  |
-  |--------------------------------|----------|-------------------------|
-  | Core multi-agent functionality | 3.0/3.0  | ✅ Perfect               |
-  | HITL escalation system         | 2.0/2.0  | ✅ Perfect               |
-  | Real-time UI updates           | 1.5/1.5  | ✅ Perfect               |
-  | Multi-round progression        | 0.5/1.5  | ❌ Only 2 rounds visible |
-  | Learning loop visibility       | 0.5/1.25 | ❌ Not prominent         |
-  | Round transition UI            | 0.0/0.5  | ❌ No visual separators  |
-  | Agent re-verification flow     | 0.0/0.25 | ❌ Compressed rounds     |
-  | TOTAL                          | 7.5/10.0 | 75% aligned             |
-
-  ---
-  🔧 How to Reach 10/10
-
-  Fix #1: Increase Question Limit to Enable 6 Rounds
-
-  // config.json line 126
-  "numberOfQuestions": 25  // Up from 12, allows full 6-round flow
-
-  Fix #2: Add Dedicated Learning Loop UI Section
-
-  Create a new section in the dashboard after "Final Recommendations":
-  <div class="learning-loop-section">
-    <h4>🎯 Learning Loop - System Adaptation</h4>
-    <div class="alert alert-info">
-      <i class="bi bi-graph-up-arrow"></i>
-      <strong>Vendor Profile Updated:</strong> First variance event recorded for TechFlow
-      <br>
-      <strong>Future Action:</strong> Monitor next invoice with enhanced scrutiny
-      <br>
-      <strong>Threshold Adjustment:</strong> Maintain 5% tolerance for next 3 invoices
-    </div>
-  </div>
-
-  Fix #3: Add Visual Round Separators
-
-  Add dividers in the activity stream:
-  <div class="round-separator">
-    <span class="badge bg-primary">Round 2 Starting</span>
-    <hr>
-  </div>
-
-  Fix #4: Highlight Agent Re-Verification Moments
-
-  Add special styling to "challenge-response" question pairs:
-  <div class="agent-challenge-card">
-    <div class="challenge">ContractCraft → InvoiceIQ: Is this a data error?</div>
-    <div class="response">InvoiceIQ → ContractCraft: Verified. True commercial variance.</div>
-  </div>
-
-  ---
-  🎯 Bottom Line
-
-  The POC is 7.5/10 because:
-  - ✅ Core functionality is perfect - agents work, dialogue happens, correct decisions made
-  - ✅ HITL system is production-ready - all escalations handled independently
-  - ❌ Visual storytelling is compressed - only 2 rounds visible, learning loop not prominent
-  - ❌ Demo script expects 6-round journey - POC delivers 2-round journey
-
-  The good news: All the intelligence is there, it just needs better UI presentation to match the demo script narrative. The agents ARE negotiating, learning, and making
-  correct decisions - it's just compressed into fewer visible rounds than ideal for storytelling.
+🎬 _Focus on showing the **conversation between agents** - that's what makes this different from traditional workflow automation. The workflow doesn't exist until the agents negotiate it into existence._

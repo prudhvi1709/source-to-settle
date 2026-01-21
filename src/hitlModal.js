@@ -18,8 +18,8 @@ export class HITLModal {
     if (this.modalElement) {
       // Initialize Bootstrap modal
       this.bsModal = new bootstrap.Modal(this.modalElement, {
-        backdrop: 'static',
-        keyboard: false
+        backdrop: true,
+        keyboard: true
       });
 
       // Get all sub-elements
@@ -39,6 +39,7 @@ export class HITLModal {
       this.approveBtn = document.querySelector('#hitl-approve-btn');
       this.rejectBtn = document.querySelector('#hitl-reject-btn');
       this.moreInfoBtn = document.querySelector('#hitl-more-info-btn');
+      this.closeBtn = document.querySelector('#hitl-close-btn');
 
       // Navigation elements
       this.counterElement = document.querySelector('#hitl-counter');
@@ -78,6 +79,11 @@ export class HITLModal {
 
     if (this.nextBtn) {
       this.nextBtn.addEventListener('click', () => this.navigateNext());
+    }
+
+    // Close button handler
+    if (this.closeBtn) {
+      this.closeBtn.addEventListener('click', () => this.handleClose());
     }
   }
 
@@ -271,10 +277,10 @@ export class HITLModal {
 
     switch (type) {
       case 'POLICY_VIOLATION':
-        return `Agents recommend BLOCKING this action due to policy violation. The detected variance of ${context.variance}% exceeds the allowed threshold of ${context.tolerance}%. Manual exception approval is required to proceed.`;
+        return `Agents recommend BLOCKING this action due to policy violation. The detected variance of ${Number(context.variance).toFixed(2)}% exceeds the allowed threshold of ${Number(context.tolerance).toFixed(2)}%. Manual exception approval is required to proceed.`;
 
       case 'LOW_CONFIDENCE':
-        return `Agents cannot extract data with sufficient confidence (${context.ocrConfidence}% < 70%). Manual verification is required before proceeding with processing.`;
+        return `Agents cannot extract data with sufficient confidence (${Number(context.ocrConfidence).toFixed(2)}% < 70%). Manual verification is required before proceeding with processing.`;
 
       case 'AGENT_DEADLOCK':
         return `Agents reached ${data.round} rounds without consensus. Multiple concerns were identified. Your decision is needed to break the deadlock.`;
@@ -528,6 +534,25 @@ export class HITLModal {
       const escalation = this.escalationHistory[this.currentIndex];
       this.populateModal(escalation);
       this.updateNavigationButtons();
+    }
+  }
+
+  /**
+   * Handle close button click
+   */
+  handleClose() {
+    console.log('🚨 HITL Modal: Close button clicked');
+
+    // Check if there are unresolved escalations
+    const unresolvedCount = this.escalationHistory.filter(e => !e.resolved).length;
+
+    if (unresolvedCount > 0) {
+      console.warn(`⚠️ HITL Modal: Closing with ${unresolvedCount} unresolved escalation(s)`);
+    }
+
+    // Simply close the modal without resolving escalations
+    if (this.bsModal) {
+      this.bsModal.hide();
     }
   }
 

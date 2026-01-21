@@ -199,15 +199,14 @@ export class ConversationUI {
     if (!this.conversationFeed) return;
 
     const divider = document.createElement('div');
-    divider.className = 'round-divider';
+    divider.className = 'round-separator text-center my-3';
     divider.innerHTML = `
-      <hr>
-      <div class="round-badge">
-        <i class="bi bi-circle-fill text-primary"></i>
-        Round ${round} Starting - ${activeAgents} agents active
-        ${messageCount > 0 ? `<span class="badge bg-secondary ms-2">${messageCount} messages in previous round</span>` : ''}
-      </div>
-      <hr>
+      <span class="badge bg-primary">
+        <i class="bi bi-circle-fill me-2"></i>Round ${round} Starting
+        <span class="ms-2">${activeAgents} agents active</span>
+        ${messageCount > 0 ? ` · ${messageCount} messages in previous round` : ''}
+      </span>
+      <hr class="mt-2">
     `;
 
     this.conversationFeed.appendChild(divider);
@@ -220,21 +219,134 @@ export class ConversationUI {
   onMessageSent(data) {
     console.log('📺 UI: Message sent', data);
 
-    const messageCard = this.createMessageCard(data.message);
-    if (this.conversationFeed && messageCard) {
-      this.conversationFeed.appendChild(messageCard);
+    // Check if this is a response to a challenge
+    const challengeResponsePair = this.detectChallengeResponsePair(data.message);
 
-      // Trigger animation
-      setTimeout(() => {
-        messageCard.classList.add('animate-in');
-      }, 10);
+    if (challengeResponsePair) {
+      // Create challenge-response card
+      const pairCard = this.createChallengeResponseCard(challengeResponsePair, data.message);
+      if (this.conversationFeed && pairCard) {
+        // Replace the challenge message with the pair card
+        const challengeCard = this.conversationFeed.querySelector(`[data-message-id="${challengeResponsePair.id}"]`);
+        if (challengeCard) {
+          this.conversationFeed.replaceChild(pairCard, challengeCard);
+        }
 
-      this.scrollToBottom();
+        // Trigger animation
+        setTimeout(() => {
+          pairCard.classList.add('animate-in');
+        }, 10);
+
+        this.scrollToBottom();
+      }
+    } else {
+      // Normal message handling
+      const messageCard = this.createMessageCard(data.message);
+      if (this.conversationFeed && messageCard) {
+        this.conversationFeed.appendChild(messageCard);
+
+        // Trigger animation
+        setTimeout(() => {
+          messageCard.classList.add('animate-in');
+        }, 10);
+
+        this.scrollToBottom();
+      }
     }
 
     // Update stats
     const analytics = this.bus.getAnalytics();
     this.updateStats(analytics.currentRound, analytics.totalMessages, analytics.escalations);
+  }
+
+  /**
+   * Detect if current message is a response to a challenge
+   */
+  detectChallengeResponsePair(message) {
+    if (!this.conversationFeed) return null;
+
+    // Check if this is an answer/response
+    if (message.type !== MessageType.ANSWER && message.type !== 'answer') return null;
+
+    // Check if there's an inReplyTo field
+    if (!message.metadata.inReplyTo) return null;
+
+    // Find the challenge message in the feed
+    const challengeCard = this.conversationFeed.querySelector(`[data-message-id="${message.metadata.inReplyTo}"]`);
+    if (!challengeCard) return null;
+
+    // Check if the original message was a challenge
+    if (!challengeCard.classList.contains('message-challenge')) return null;
+
+    // Get the challenge message data from the card
+    const challengeFrom = challengeCard.querySelector('.message-header strong:first-of-type')?.textContent;
+    const challengeTo = challengeCard.querySelector('.message-header strong:nth-of-type(2)')?.textContent;
+    const challengeContent = challengeCard.querySelector('.message-content')?.textContent;
+
+    return {
+      id: message.metadata.inReplyTo,
+      from: challengeFrom,
+      to: challengeTo,
+      content: challengeContent
+    };
+  }
+
+  /**
+   * Create challenge-response pair card
+   */
+  createChallengeResponseCard(challenge, response) {
+    const card = document.createElement('div');
+    card.className = 'agent-challenge-card';
+    card.dataset.messageId = challenge.id;
+
+    const challengeFromIcon = AGENT_ICONS[challenge.from] || '🤖';
+    const challengeToIcon = AGENT_ICONS[challenge.to] || '🤖';
+    const responseFromIcon = AGENT_ICONS[response.from] || '🤖';
+    const responseToIcon = AGENT_ICONS[response.to] || '🤖';
+
+    const timestamp = new Date(response.metadata.timestamp).toLocaleTimeString();
+
+    card.innerHTML = `
+      <div class="challenge-response-header">
+        <i class="bi bi-arrow-left-right me-2"></i>
+        <strong>Challenge-Response Pair</strong>
+        <span class="timestamp ms-auto">${timestamp}</span>
+      </div>
+      <div class="challenge">
+        <div class="challenge-label">
+          <i class="bi bi-question-circle me-1"></i><strong>Challenge</strong>
+        </div>
+        <div class="challenge-content">
+          <span class="agent-icon">${challengeFromIcon}</span>
+          <strong>${challenge.from}</strong>
+          <i class="bi bi-arrow-right mx-2"></i>
+          <span class="agent-icon">${challengeToIcon}</span>
+          <strong>${challenge.to}</strong>
+          <div class="mt-2">${this.escapeHtml(challenge.content)}</div>
+        </div>
+      </div>
+      <div class="response">
+        <div class="response-label">
+          <i class="bi bi-check-circle me-1"></i><strong>Response</strong>
+        </div>
+        <div class="response-content">
+          <span class="agent-icon">${responseFromIcon}</span>
+          <strong>${response.from}</strong>
+          <i class="bi bi-arrow-right mx-2"></i>
+          <span class="agent-icon">${responseToIcon}</span>
+          <strong>${response.to}</strong>
+          <div class="mt-2">${this.escapeHtml(response.content)}</div>
+        </div>
+      </div>
+      ${response.metadata.confidence ? `
+        <div class="verification-badge">
+          <i class="bi bi-shield-check me-1"></i>
+          Verified with ${Number(response.metadata.confidence).toFixed(2)}% confidence
+        </div>
+      ` : ''}
+    `;
+
+    return card;
   }
 
   /**
@@ -271,7 +383,7 @@ export class ConversationUI {
           <div class="confidence-bar">
             <div class="confidence-fill" style="width: ${message.metadata.confidence}%"></div>
           </div>
-          <span class="confidence-label">Confidence: ${message.metadata.confidence}%</span>
+          <span class="confidence-label">Confidence: ${Number(message.metadata.confidence).toFixed(2)}%</span>
         </div>
       ` : ''}
       ${message.metadata.urgency ? `

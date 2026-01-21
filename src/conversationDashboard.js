@@ -371,7 +371,7 @@ export class ConversationDashboard {
               <div class="progress" style="height: 4px;">
                 <div class="progress-bar bg-${color}" style="width: ${message.metadata.confidence}%"></div>
               </div>
-              <small class="text-muted">Confidence: ${message.metadata.confidence}%</small>
+              <small class="text-muted">Confidence: ${Number(message.metadata.confidence).toFixed(2)}%</small>
             </div>
           ` : ''}
         </div>
